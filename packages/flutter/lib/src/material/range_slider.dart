@@ -1435,6 +1435,7 @@ class _RenderRangeSlider extends RenderBox with RelayoutWhenSystemFontsChangeMix
       sliderTheme: _sliderTheme,
       thumb: bottomThumb,
       isPressed: bottomThumb == Thumb.start ? startThumbSelected : endThumbSelected,
+      values: _values,
     );
 
     if (shouldPaintValueIndicators) {
@@ -1511,6 +1512,7 @@ class _RenderRangeSlider extends RenderBox with RelayoutWhenSystemFontsChangeMix
       sliderTheme: _sliderTheme,
       thumb: topThumb,
       isPressed: topThumb == Thumb.start ? startThumbSelected : endThumbSelected,
+      values: _values,
     );
   }
 

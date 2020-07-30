@@ -1149,6 +1149,7 @@ abstract class RangeSliderThumbShape {
     SliderThemeData sliderTheme,
     Thumb thumb,
     bool isPressed,
+    RangeValues values
   });
 }
 
@@ -2407,6 +2408,7 @@ class RoundRangeSliderThumbShape extends RangeSliderThumbShape {
     TextDirection textDirection,
     Thumb thumb,
     bool isPressed,
+    RangeValues values
   }) {
     assert(context != null);
     assert(center != null);
