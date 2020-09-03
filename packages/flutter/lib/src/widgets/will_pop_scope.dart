@@ -11,9 +11,9 @@ import 'routes.dart';
 /// Registers a callback to veto attempts by the user to dismiss the enclosing
 /// [ModalRoute].
 ///
-/// WillPopScope prevents gestures that makes current pops such as swipe to go back
-/// gesture on iOS. To enable this behaviour use custom route which overrides
-/// `hasScopedWillPopCallback` getter.
+/// WillPopScope prevents gestures that makes current route pop such as backswipe gesture on iOS. 
+/// To enable this behaviour, use custom route which overrides `hasScopedWillPopCallback` 
+/// getter and returns false on either custom `MaterialPageRoute` or `CupertinoPageRoute`.
 ///
 /// {@tool dartpad --template=freeform}
 ///
@@ -23,7 +23,7 @@ import 'routes.dart';
 /// ```dart
 /// /// Flutter code sample for WillPopScope
 /// /// This sample demonstrates how to register a callback for when the user wants
-/// /// to dismiss the current Route.
+/// /// to dismiss the current [Route].
 ///
 /// /// `onWillPop` callback can be used to show warning to the user on popping
 /// /// the current [Route], preventing user from going to back to unintended Routes.
