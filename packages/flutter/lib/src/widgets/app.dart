@@ -532,11 +532,9 @@ class WidgetsApp extends StatefulWidget {
   /// and before this route is pushed, the routes leading to this one are pushed
   /// also. For example, if the route was `/a/b/c`, then the app would start
   /// with the four routes `/`, `/a`, `/a/b`, and `/a/b/c` loaded, in that order.
-  ///
   /// Even if the route was just `/a`, the app would start with `/` and `/a`
-  /// loaded. This is why it is preferable to avoid hardcoding a deep link
-  /// [initialRoute] to simply set the default route of the app. The [home]
-  /// property is better suited for this.
+  /// loaded. You can use the [onGenerateInitialRoutes] property to override
+  /// this behavior.
   ///
   /// Intermediate routes aren't required to exist. In the example above, `/a`
   /// and `/a/b` could be skipped if they have no matching route. But `/a/b/c` is
