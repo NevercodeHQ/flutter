@@ -1814,6 +1814,7 @@ class _TabBarViewState extends State<TabBarView> {
   }
 
   void _jumpToPage(int page) {
+    print("////// _TabBarViewState._jumpToPage - page = $page");
     _warpUnderwayCount += 1;
     _pageController.jumpToPage(page);
     _warpUnderwayCount -= 1;
@@ -1824,6 +1825,7 @@ class _TabBarViewState extends State<TabBarView> {
     required Duration duration,
     required Curve curve,
   }) async {
+    print("////// _TabBarViewState._animateToPage - page = $page");
     _warpUnderwayCount += 1;
     await _pageController.animateToPage(page, duration: duration, curve: curve);
     _warpUnderwayCount -= 1;
@@ -1840,6 +1842,7 @@ class _TabBarViewState extends State<TabBarView> {
     super.didChangeDependencies();
     _updateTabController();
     _currentIndex = _controller!.index;
+    print("+++++ didChangeDependencies - reset _pageController");
     _pageController = PageController(
       initialPage: _currentIndex!,
       viewportFraction: widget.viewportFraction,
@@ -1872,10 +1875,17 @@ class _TabBarViewState extends State<TabBarView> {
   }
 
   void _updateChildren() {
+    print("&&&&& _TabBarViewState._updateChildren");
     _childrenWithKey = KeyedSubtree.ensureUniqueKeysForList(widget.children);
   }
 
   void _handleTabControllerAnimationTick() {
+    print("////// _TabBarViewState._handleTabControllerAnimationTick - _scrollUnderwayCount = $_scrollUnderwayCount");
+
+    // setState(() {
+    //   _updateChildren();
+    // });
+
     if (_scrollUnderwayCount > 0 || !_controller!.indexIsChanging) {
       return;
     } // This widget is driving the controller's animation.
@@ -1887,14 +1897,19 @@ class _TabBarViewState extends State<TabBarView> {
   }
 
   void _warpToCurrentIndex() {
+    print("////// _TabBarViewState._warpToCurrentIndex - _scrollUnderwayCount = $_scrollUnderwayCount");
+
     if (!mounted || _pageController.page == _currentIndex!.toDouble()) {
+      print("AAAAAAA     ---> return");
       return;
     }
 
     final bool adjacentDestination = (_currentIndex! - _controller!.previousIndex).abs() == 1;
     if (adjacentDestination) {
+      print("//////     ---> before _warpToAdjacentTab");
       _warpToAdjacentTab(_controller!.animationDuration);
     } else {
+      print("//////     ---> before _warpToNonAdjacentTab");
       _warpToNonAdjacentTab(_controller!.animationDuration);
     }
   }
@@ -1947,6 +1962,7 @@ class _TabBarViewState extends State<TabBarView> {
   }
 
   void _syncControllerOffset() {
+    print("////// _TabBarViewState.syncControllerOffset");
     _controller!.offset = clampDouble(_pageController.page! - _controller!.index, -1.0, 1.0);
   }
 

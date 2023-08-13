@@ -993,11 +993,13 @@ abstract class ScrollPosition extends ViewportOffset with ScrollMetrics {
 
   /// Called by [beginActivity] to report when an activity has started.
   void didStartScroll() {
+    print("&&&&&&&&&&&&&& ScrollPosition.didStartScroll - _pixels = $_pixels");
     activity!.dispatchScrollStartNotification(copyWith(), context.notificationContext);
   }
 
   /// Called by [setPixels] to report a change to the [pixels] position.
   void didUpdateScrollPositionBy(double delta) {
+    print("&&&&&&&&&&&&&& ScrollPosition.didUpdateScrollPositionBy - delta = $delta");
     activity!.dispatchScrollUpdateNotification(copyWith(), context.notificationContext!, delta);
   }
 
@@ -1058,6 +1060,8 @@ abstract class ScrollPosition extends ViewportOffset with ScrollMetrics {
 
   @override
   void dispose() {
+    print("&&&&&&&&&&&&&& ScrollPosition.dispose");
+
     activity?.dispose(); // it will be null if it got absorbed by another ScrollPosition
     _activity = null;
     isScrollingNotifier.dispose();

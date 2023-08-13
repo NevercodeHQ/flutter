@@ -190,12 +190,21 @@ class PageController extends ScrollController {
     required Duration duration,
     required Curve curve,
   }) {
+    print("~~~~~~ PageController.animateToPage - page = $page");
     final _PagePosition position = this.position as _PagePosition;
+    // if (position.activity!.isScrolling) {
+    //   position.hold(() { });
+    // }
     if (position._cachedPage != null) {
+      print("~~~~~~ PageController.animateToPage - position._cachedPage = ${position._cachedPage}");
       position._cachedPage = page.toDouble();
       return Future<void>.value();
     }
 
+    print("~~~~~~ PageController.animateToPage - before position.animateTo");
+    if (position.activity!.isScrolling) {
+      position.goIdle();
+    }
     return position.animateTo(
       position.getPixelsFromPage(page.toDouble()),
       duration: duration,

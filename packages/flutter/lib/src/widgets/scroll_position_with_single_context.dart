@@ -76,12 +76,16 @@ class ScrollPositionWithSingleContext extends ScrollPosition implements ScrollAc
 
   @override
   double setPixels(double newPixels) {
+    print("#### ScrollPositionWithSingleContext.setPixels - newPixels = $newPixels");
+
     assert(activity!.isScrolling);
     return super.setPixels(newPixels);
   }
 
   @override
   void absorb(ScrollPosition other) {
+    print("#### ScrollPositionWithSingleContext.absorb");
+
     super.absorb(other);
     if (other is! ScrollPositionWithSingleContext) {
       goIdle();
@@ -105,6 +109,8 @@ class ScrollPositionWithSingleContext extends ScrollPosition implements ScrollAc
 
   @override
   void beginActivity(ScrollActivity? newActivity) {
+    print("#### ScrollPositionWithSingleContext.beginActivity - newActivity = $newActivity");
+
     _heldPreviousVelocity = 0.0;
     if (newActivity == null) {
       return;
@@ -126,6 +132,7 @@ class ScrollPositionWithSingleContext extends ScrollPosition implements ScrollAc
 
   @override
   void goIdle() {
+    print("#### ScrollPositionWithSingleContext.goBallistic");
     beginActivity(IdleScrollActivity(this));
   }
 
@@ -140,6 +147,7 @@ class ScrollPositionWithSingleContext extends ScrollPosition implements ScrollAc
   /// The velocity should be in logical pixels per second.
   @override
   void goBallistic(double velocity) {
+    print("#### ScrollPositionWithSingleContext.goBallistic");
     assert(hasPixels);
     final Simulation? simulation = physics.createBallisticSimulation(this, velocity);
     if (simulation != null) {
@@ -177,6 +185,10 @@ class ScrollPositionWithSingleContext extends ScrollPosition implements ScrollAc
     required Duration duration,
     required Curve curve,
   }) {
+    print("#### ScrollPositionWithSingleContext.animateTo - to = $to - pixels = $pixels");
+
+      //     jumpTo(to);
+      // return Future<void>.value();
     if (nearEqual(to, pixels, physics.toleranceFor(this).distance)) {
       // Skip the animation, go straight to the position as we are already close.
       jumpTo(to);

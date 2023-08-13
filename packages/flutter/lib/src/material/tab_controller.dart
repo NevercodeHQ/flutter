@@ -181,22 +181,30 @@ class TabController extends ChangeNotifier {
   final int length;
 
   void _changeIndex(int value, { Duration? duration, Curve? curve }) {
+    print("--> _changeIndex - start");
     assert(value >= 0 && (value < length || length == 0));
     assert(duration != null || curve == null);
     assert(_indexIsChangingCount >= 0);
     if (value == _index || length < 2) {
+      print("--> _changeIndex - _return immediately");
       return;
     }
     _previousIndex = index;
     _index = value;
     if (duration != null && duration > Duration.zero) {
       _indexIsChangingCount += 1;
+      print("--> _changeIndex - _indexIsChangingCount = $_indexIsChangingCount");
+      print("     ---> _animationController!.isAnimating = ${_animationController!.isAnimating}");
+      if (_animationController!.isAnimating) {
+        _animationController!.reset();
+      }
       notifyListeners(); // Because the value of indexIsChanging may have changed.
       _animationController!
         .animateTo(_index.toDouble(), duration: duration, curve: curve!)
         .whenCompleteOrCancel(() {
           if (_animationController != null) { // don't notify if we've been disposed
             _indexIsChangingCount -= 1;
+            print("--> whenCompleteOrCancel - _indexIsChangingCount = $_indexIsChangingCount");
             notifyListeners();
           }
         });

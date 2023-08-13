@@ -2217,6 +2217,59 @@ void main() {
     expect(tabController.index, 0);
   });
 
+  testWidgets('TabBarView scrolls animation is interrupted XXXX', (WidgetTester tester) async {
+    // This is a regression test for https://github.com/flutter/flutter/issues/132293.
+
+    final List<String> tabs = <String>['A', 'B', 'C'];
+    final TabController tabController = TabController(
+      vsync: const TestVSync(),
+      length: tabs.length,
+    );
+    await tester.pumpWidget(boilerplate(
+      child: Column(
+        children: <Widget>[
+          TabBar(
+            tabs: tabs.map<Widget>((String tab) => Tab(text: tab)).toList(),
+            controller: tabController,
+          ),
+          SizedBox(
+            width: 400.0,
+            height: 400.0,
+            child: TabBarView(
+              controller: tabController,
+              children: const <Widget>[
+                Center(child: Text('0')),
+                Center(child: Text('1')),
+                Center(child: Text('2')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ));
+
+    expect(tabController.index, 0);
+
+    tabController.animateTo(1);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    tabController.animateTo(0);
+    await tester.pumpAndSettle();
+
+    print("\n@@@@@ find.text('0').tryEvaluate() = ${find.text('0').tryEvaluate()}");
+    print("@@@@@ find.text('1').tryEvaluate() = ${find.text('1').tryEvaluate()}");
+    // expect(find.text('1'), findsNothing);
+    // expect(find.text('0'), findsOneWidget);
+
+    final PageView pageView = tester.widget(find.byType(PageView));
+    final PageController pageController = pageView.controller;
+    final ScrollPosition position = pageController.position;
+
+    print("-----------------");
+    print(" pageController.page = ${pageController.page} ");
+    print(" position.pixels = ${position.pixels} ");
+  });
+
   testWidgets('Can switch to non-neighboring tab in nested TabBarView without crashing', (WidgetTester tester) async {
     // This is a regression test for https://github.com/flutter/flutter/issues/18756
     final TabController mainTabController = TabController(length: 4, vsync: const TestVSync());
