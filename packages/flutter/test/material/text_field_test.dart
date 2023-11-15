@@ -6108,8 +6108,11 @@ void main() {
     await tester.pumpAndSettle();
 
     final Text helperText = tester.widget(find.text('helper text'));
-    expect(helperText.style!.color, themeData.hintColor);
-    expect(helperText.style!.fontSize, Typography.englishLike2014.bodySmall!.fontSize);
+    // With M3, helper text color does not default to hintColor as it does in M2,
+    // it defaults to onSurfaceVariant.
+    // See https://github.com/flutter/flutter/issues/138213.
+    expect(helperText.style!.color, themeData.colorScheme.onSurfaceVariant);
+    expect(helperText.style!.fontSize, Typography.englishLike2021.bodySmall!.fontSize);
   });
 
   testWidgetsWithLeakTracking('TextField with specified helperStyle', (WidgetTester tester) async {
@@ -6496,7 +6499,7 @@ void main() {
     expect(iconRight + 28.0, equals(tester.getTopLeft(find.byType(EditableText)).dx));
   });
 
-  testWidgetsWithLeakTracking('Collapsed hint text placement', (WidgetTester tester) async {
+  testWidgetsWithLeakTracking('M2 - Collapsed hint text placement', (WidgetTester tester) async {
     await tester.pumpWidget(
       Theme(
         data: ThemeData(useMaterial3: false),
@@ -6511,6 +6514,26 @@ void main() {
       ),
     );
 
+    expect(tester.getTopLeft(find.text('hint')), equals(tester.getTopLeft(find.byType(EditableText))));
+  });
+
+  testWidgetsWithLeakTracking('M3 - Collapsed hint text placement', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      Theme(
+        data: ThemeData(useMaterial3: true),
+        child: overlay(
+          child: const TextField(
+            decoration: InputDecoration.collapsed(
+              hintText: 'hint',
+            ),
+            strutStyle: StrutStyle.disabled,
+          ),
+        ),
+      ),
+    );
+
+    print('EditableText rect -> ${tester.getRect(find.byType(EditableText))}');
+    print('hint rect -> ${tester.getRect(find.text('hint'))}');
     expect(tester.getTopLeft(find.text('hint')), equals(tester.getTopLeft(find.byType(EditableText))));
   });
 
@@ -6868,7 +6891,7 @@ void main() {
     expect(formatters.isEmpty, isTrue);
   });
 
-  testWidgetsWithLeakTracking('Text field scrolls the caret into view', (WidgetTester tester) async {
+  testWidgetsWithLeakTracking('M2 - Text field scrolls the caret into view', (WidgetTester tester) async {
     final TextEditingController controller = _textEditingController();
 
     await tester.pumpWidget(
@@ -6907,6 +6930,51 @@ void main() {
     await skipPastScrollingAnimation(tester);
 
     scrollableState = tester.firstState(find.byType(Scrollable));
+    // For a horizontal input, scrolls to the exact position of the caret.
+    expect(scrollableState.position.pixels, equals(222.0));
+  });
+
+  testWidgetsWithLeakTracking('M3 - Text field scrolls the caret into view', (WidgetTester tester) async {
+    final TextEditingController controller = _textEditingController();
+
+    await tester.pumpWidget(
+      overlay(
+        child: SizedBox(
+          width: 100.0,
+          child: TextField(
+            controller: controller,
+          ),
+        ),
+      ),
+    );
+
+    final String longText = 'a' * 20;
+    await tester.enterText(find.byType(TextField), longText);
+    await skipPastScrollingAnimation(tester);
+
+    ScrollableState scrollableState = tester.firstState(find.byType(Scrollable));
+    expect(scrollableState.position.pixels, equals(0.0));
+
+    // Move the caret to the end of the text and check that the text field
+    // scrolls to make the caret visible.
+    scrollableState = tester.firstState(find.byType(Scrollable));
+    final EditableTextState editableTextState = tester.firstState(find.byType(EditableText));
+    editableTextState.userUpdateTextEditingValue(
+      editableTextState.textEditingValue.copyWith(
+        selection: TextSelection.collapsed(offset: longText.length),
+      ),
+      null,
+    );
+
+    await tester.pump(); // TODO(ianh): Figure out why this extra pump is needed.
+    await skipPastScrollingAnimation(tester);
+
+    scrollableState = tester.firstState(find.byType(Scrollable));
+    RenderEditable editable = findRenderEditable(tester);
+      Offset topLeft = editable.localToGlobal(
+        editable.getLocalRectForCaret(TextPosition(offset: longText.length)).topLeft,
+      );
+
     // For a horizontal input, scrolls to the exact position of the caret.
     expect(scrollableState.position.pixels, equals(222.0));
   });
@@ -7642,7 +7710,7 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgetsWithLeakTracking('Disabled text field hides helper and counter', (WidgetTester tester) async {
+  testWidgetsWithLeakTracking('M2 - Disabled text field hides helper and counter', (WidgetTester tester) async {
     const String helperText = 'helper text';
     const String counterText = 'counter text';
     const String errorText = 'error text';
@@ -7689,7 +7757,57 @@ void main() {
     expect(errorWidget.style!.color, equals(Colors.transparent));
   });
 
-  testWidgetsWithLeakTracking('Disabled text field has default M2 disabled text style for the input text', (WidgetTester tester) async {
+  testWidgetsWithLeakTracking('M3 - Disabled text field changes helper and counter colors', (WidgetTester tester) async {
+    const String helperText = 'helper text';
+    const String counterText = 'counter text';
+    const String errorText = 'error text';
+    Widget buildFrame(bool enabled, bool hasError) {
+      return MaterialApp(
+        home: Material(
+          child: Center(
+            child: TextField(
+              decoration: InputDecoration(
+                labelText: 'label text',
+                helperText: helperText,
+                counterText: counterText,
+                errorText: hasError ? errorText : null,
+                enabled: enabled,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    await tester.pumpWidget(buildFrame(true, false));
+    ThemeData theme = Theme.of(tester.element(find.byType(TextField)));
+    Text helperWidget = tester.widget(find.text(helperText));
+    Text counterWidget = tester.widget(find.text(counterText));
+    expect(helperWidget.style!.color, equals(theme.colorScheme.onSurfaceVariant));
+    expect(counterWidget.style!.color, equals(theme.colorScheme.onSurfaceVariant));
+    await tester.pumpWidget(buildFrame(true, true));
+    theme = Theme.of(tester.element(find.byType(TextField)));
+    counterWidget = tester.widget(find.text(counterText));
+    Text errorWidget = tester.widget(find.text(errorText));
+    expect(helperWidget.style!.color, equals(theme.colorScheme.onSurfaceVariant));
+    expect(errorWidget.style!.color, equals(theme.colorScheme.error));
+
+    // When enabled is false, the helper/error and counter colors changes.
+    await tester.pumpWidget(buildFrame(false, false));
+    theme = Theme.of(tester.element(find.byType(TextField)));
+    helperWidget = tester.widget(find.text(helperText));
+    counterWidget = tester.widget(find.text(counterText));
+    expect(helperWidget.style!.color, equals(theme.colorScheme.onSurface.withOpacity(0.38)));
+    expect(counterWidget.style!.color, equals(theme.colorScheme.onSurface.withOpacity(0.38)));
+    await tester.pumpWidget(buildFrame(false, true));
+    theme = Theme.of(tester.element(find.byType(TextField)));
+    errorWidget = tester.widget(find.text(errorText));
+    counterWidget = tester.widget(find.text(counterText));
+    expect(counterWidget.style!.color, equals(theme.colorScheme.onSurface.withOpacity(0.38)));
+    expect(errorWidget.style!.color, equals(theme.colorScheme.error));
+  });
+
+  testWidgetsWithLeakTracking('M2 - Disabled text field has default disabled text style for the input text', (WidgetTester tester) async {
     final TextEditingController controller = _textEditingController(
       text: 'Atwater Peel Sherbrooke Bonaventure',
     );
@@ -7711,12 +7829,12 @@ void main() {
     expect(editableText.style.color, Colors.black38); // Colors.black38 is the default disabled color for ThemeData.light().
   });
 
-  testWidgetsWithLeakTracking('Disabled text field has default M3 disabled text style for the input text', (WidgetTester tester) async {
+  testWidgetsWithLeakTracking('M3 - Disabled text field has default disabled text style for the input text', (WidgetTester tester) async {
     final TextEditingController controller = _textEditingController(
       text: 'Atwater Peel Sherbrooke Bonaventure',
     );
 
-    final ThemeData theme = ThemeData.light(useMaterial3: true);
+    final ThemeData theme = ThemeData();
 
     await tester.pumpWidget(
       MaterialApp(
@@ -7740,11 +7858,8 @@ void main() {
       text: 'Atwater Peel Sherbrooke Bonaventure',
     );
 
-    final ThemeData theme = ThemeData.light(useMaterial3: true);
-
     Widget buildFrame(bool enabled) {
       return MaterialApp(
-        theme: theme,
         home: Material(
           child: Center(
             child: TextField(
@@ -8574,7 +8689,7 @@ void main() {
     expect(controller.selection.baseOffset, 0);
   });
 
-  testWidgetsWithLeakTracking('TextField baseline alignment no-strut', (WidgetTester tester) async {
+  testWidgetsWithLeakTracking('M2 - TextField baseline alignment no-strut', (WidgetTester tester) async {
     final TextEditingController controllerA = _textEditingController(text: 'A');
     final TextEditingController controllerB = _textEditingController(text: 'B');
     final Key keyA = UniqueKey();
@@ -8636,7 +8751,66 @@ void main() {
     expect(tester.getBottomLeft(find.byKey(keyB)).dy, rowBottomY);
   });
 
-  testWidgetsWithLeakTracking('TextField baseline alignment', (WidgetTester tester) async {
+  testWidgetsWithLeakTracking('M3 - TextField baseline alignment no-strut', (WidgetTester tester) async {
+    final TextEditingController controllerA = _textEditingController(text: 'A');
+    final TextEditingController controllerB = _textEditingController(text: 'B');
+    final Key keyA = UniqueKey();
+    final Key keyB = UniqueKey();
+
+    await tester.pumpWidget(
+      overlay(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: <Widget>[
+            Expanded(
+              child: TextField(
+                key: keyA,
+                decoration: null,
+                controller: controllerA,
+                // The point size of the font must be a multiple of 4 until
+                // https://github.com/flutter/flutter/issues/122066 is resolved.
+                style: const TextStyle(fontFamily: 'FlutterTest', fontSize: 12.0, height: 1.0),
+                strutStyle: StrutStyle.disabled,
+              ),
+            ),
+            const Text(
+              'abc',
+              // The point size of the font must be a multiple of 4 until
+              // https://github.com/flutter/flutter/issues/122066 is resolved.
+              style: TextStyle(fontFamily: 'FlutterTest', fontSize: 24.0, height: 1.0),
+            ),
+            Expanded(
+              child: TextField(
+                key: keyB,
+                decoration: null,
+                controller: controllerB,
+                // The point size of the font must be a multiple of 4 until
+                // https://github.com/flutter/flutter/issues/122066 is resolved.
+                style: const TextStyle(fontFamily: 'FlutterTest', fontSize: 36.0, height: 1.0),
+                strutStyle: StrutStyle.disabled,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    // The test font extends 0.25 * fontSize below the baseline.
+    // So the three row elements line up like this:
+    //
+    //  A  abc  B
+    //  ---------  baseline
+    //  3   6   9  space below the baseline = 0.25 * fontSize
+    //  ---------  rowBottomY
+
+    final double rowBottomY = tester.getBottomLeft(find.byType(Row)).dy;
+    expect(tester.getBottomLeft(find.byKey(keyA)).dy, rowBottomY - 6.0);
+    expect(tester.getBottomLeft(find.text('abc')).dy, rowBottomY - 3.0);
+    expect(tester.getBottomLeft(find.byKey(keyB)).dy, rowBottomY);
+  });
+
+  testWidgetsWithLeakTracking('M2 - TextField baseline alignment', (WidgetTester tester) async {
     final TextEditingController controllerA = _textEditingController(text: 'A');
     final TextEditingController controllerB = _textEditingController(text: 'B');
     final Key keyA = UniqueKey();
@@ -8678,6 +8852,64 @@ void main() {
               ),
             ],
           ),
+        ),
+      ),
+    );
+
+    // The test font extends 0.25 * fontSize below the baseline.
+    // So the three row elements line up like this:
+    //
+    //  A  abc  B
+    //  ---------  baseline
+    //  3   6   9  space below the baseline = 0.25 * fontSize
+    //  ---------  rowBottomY
+
+    final double rowBottomY = tester.getBottomLeft(find.byType(Row)).dy;
+    // The values here should match the version with strut disabled ('TextField baseline alignment no-strut')
+    expect(tester.getBottomLeft(find.byKey(keyA)).dy, rowBottomY - 6.0);
+    expect(tester.getBottomLeft(find.text('abc')).dy, rowBottomY - 3.0);
+    expect(tester.getBottomLeft(find.byKey(keyB)).dy, rowBottomY);
+  });
+
+  testWidgetsWithLeakTracking('M3 - TextField baseline alignment', (WidgetTester tester) async {
+    final TextEditingController controllerA = _textEditingController(text: 'A');
+    final TextEditingController controllerB = _textEditingController(text: 'B');
+    final Key keyA = UniqueKey();
+    final Key keyB = UniqueKey();
+
+    await tester.pumpWidget(
+      overlay(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: <Widget>[
+            Expanded(
+              child: TextField(
+                key: keyA,
+                decoration: null,
+                controller: controllerA,
+                // The point size of the font must be a multiple of 4 until
+                // https://github.com/flutter/flutter/issues/122066 is resolved.
+                style: const TextStyle(fontFamily: 'FlutterTest', fontSize: 12.0, height: 1.0),
+              ),
+            ),
+            const Text(
+              'abc',
+              // The point size of the font must be a multiple of 4 until
+              // https://github.com/flutter/flutter/issues/122066 is resolved.
+              style: TextStyle(fontFamily: 'FlutterTest', fontSize: 24.0, height: 1.0),
+            ),
+            Expanded(
+              child: TextField(
+                key: keyB,
+                decoration: null,
+                controller: controllerB,
+                // The point size of the font must be a multiple of 4 until
+                // https://github.com/flutter/flutter/issues/122066 is resolved.
+                style: const TextStyle(fontFamily: 'FlutterTest', fontSize: 36.0, height: 1.0),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -9459,7 +9691,7 @@ void main() {
             data: MediaQuery.of(context).copyWith(
               navigationMode: NavigationMode.directional,
             ),
-            child:  TextField(
+            child: TextField(
               focusNode: focusNode,
               autofocus: true,
               enabled: false,
@@ -9473,7 +9705,7 @@ void main() {
     expect(focusNode.hasFocus, isTrue);
   });
 
-  testWidgetsWithLeakTracking('TextField displays text with text direction', (WidgetTester tester) async {
+  testWidgetsWithLeakTracking('M2 - TextField displays text with text direction', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: ThemeData(useMaterial3: false),
@@ -9499,6 +9731,48 @@ void main() {
       MaterialApp(
         theme: ThemeData(useMaterial3: false),
         home: const Material(
+          child: TextField(
+            textDirection: TextDirection.ltr,
+          ),
+        ),
+      ),
+    );
+
+    editable = findRenderEditable(tester);
+
+    await tester.enterText(find.byType(TextField), '0123456789101112');
+    await tester.pumpAndSettle();
+    topLeft = editable.localToGlobal(
+      editable.getLocalRectForCaret(const TextPosition(offset: 10)).topLeft,
+    );
+
+    expect(topLeft.dx, equals(160.0));
+  });
+
+  testWidgetsWithLeakTracking('M3 - TextField displays text with text direction', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Material(
+          child: TextField(
+            textDirection: TextDirection.rtl,
+          ),
+        ),
+      ),
+    );
+
+    RenderEditable editable = findRenderEditable(tester);
+
+    await tester.enterText(find.byType(TextField), '0123456789101112');
+    await tester.pumpAndSettle();
+    Offset topLeft = editable.localToGlobal(
+      editable.getLocalRectForCaret(const TextPosition(offset: 10)).topLeft,
+    );
+
+    expect(topLeft.dx, equals(701));
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Material(
           child: TextField(
             textDirection: TextDirection.ltr,
           ),
@@ -9701,11 +9975,35 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgetsWithLeakTracking('floating label does not overlap with value at large textScaleFactors', (WidgetTester tester) async {
+  testWidgetsWithLeakTracking('M2 - Floating label does not overlap with value at large textScaleFactors', (WidgetTester tester) async {
     final TextEditingController controller = _textEditingController(text: 'Just some text');
     await tester.pumpWidget(
       MaterialApp(
         theme: ThemeData(useMaterial3: false),
+        home: Scaffold(
+          body: MediaQuery(
+            data: const MediaQueryData(textScaleFactor: 4.0),
+            child: Center(
+              child: TextField(
+                decoration: const InputDecoration(labelText: 'Label', border: UnderlineInputBorder()),
+                controller: controller,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(TextField));
+    final Rect labelRect = tester.getRect(find.text('Label'));
+    final Rect fieldRect = tester.getRect(find.text('Just some text'));
+    expect(labelRect.bottom, lessThanOrEqualTo(fieldRect.top));
+  });
+
+  testWidgetsWithLeakTracking('M3 - Floating label does not overlap with value at large textScaleFactors', (WidgetTester tester) async {
+    final TextEditingController controller = _textEditingController(text: 'Just some text');
+    await tester.pumpWidget(
+      MaterialApp(
         home: Scaffold(
           body: MediaQuery(
             data: const MediaQueryData(textScaleFactor: 4.0),

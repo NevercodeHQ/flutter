@@ -1135,6 +1135,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
     final double maxVerticalOffset = maxContentHeight - alignableHeight;
     final double textAlignVerticalOffset = maxVerticalOffset * textAlignVerticalFactor;
     final double inputBaseline = topInputBaseline + textAlignVerticalOffset;
+    print('_RenderDecoration._layout -> inputBaseline = $inputBaseline');
 
     // The three main alignments for the baseline when an outline is present are
     //
@@ -1157,6 +1158,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       outlineBottomBaseline,
       textAlignVertical,
     );
+    print('_RenderDecoration._layout -> outlineBaseline = $outlineBaseline');
 
     // Find the positions of the text below the input when it exists.
     double subtextCounterBaseline = 0;
@@ -1400,6 +1402,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
 
     height = layout.containerHeight;
     baseline = _isOutlineAligned ? layout.outlineBaseline : layout.inputBaseline;
+    print('_RenderDecoration - baseline = $baseline');
 
     if (icon != null) {
       final double x;
