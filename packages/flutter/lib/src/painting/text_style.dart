@@ -1367,6 +1367,9 @@ class TextStyle with Diagnosticable {
     final TextLeadingDistribution? leadingDistribution = this.leadingDistribution;
     final TextHeightBehavior? effectiveTextHeightBehavior = textHeightBehavior
       ?? (leadingDistribution == null ? null : TextHeightBehavior(leadingDistribution: leadingDistribution));
+    // print("/// getParagraphStyle - effectiveTextHeightBehavior = $effectiveTextHeightBehavior");
+
+
 
     return ui.ParagraphStyle(
       textAlign: textAlign,

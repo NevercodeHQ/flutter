@@ -38,7 +38,7 @@ class ViewConfiguration {
     return ViewConfiguration(
       physicalConstraints: physicalConstraints,
       logicalConstraints: physicalConstraints / devicePixelRatio,
-      devicePixelRatio: devicePixelRatio,
+      devicePixelRatio: devicePixelRatio, //3.0,
     );
   }
 

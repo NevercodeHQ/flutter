@@ -987,6 +987,7 @@ class TextPainter {
       _createParagraphStyle(TextDirection.rtl),
     ); // direction doesn't matter, text is just a space
     final ui.TextStyle? textStyle = text?.style?.getTextStyle(textScaler: textScaler);
+    //print(' >>> _createLayoutTemplate - textStyle = $textStyle');
     if (textStyle != null) {
       builder.pushStyle(textStyle);
     }
@@ -1080,7 +1081,14 @@ class TextPainter {
   // Creates a ui.Paragraph using the current configurations in this class and
   // assign it to _paragraph.
   ui.Paragraph _createParagraph(InlineSpan text) {
-    final ui.ParagraphBuilder builder = ui.ParagraphBuilder(_createParagraphStyle());
+    final ui.ParagraphStyle style = _createParagraphStyle();
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${text.toPlainText()}");
+    print(">>  TextPainter._createParagraph");
+    print("$style");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+    final ui.ParagraphBuilder builder = ui.ParagraphBuilder(style);
+
     text.build(builder, textScaler: textScaler, dimensions: _placeholderDimensions);
     assert(() {
       _debugMarkNeedsLayoutCallStack = null;
@@ -1196,6 +1204,15 @@ class TextPainter {
       assert(debugSize == size);
     }
     assert(!_rebuildParagraphForPaint);
+
+    // print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    // print('~~~~~~~~~~~~~~~~~ ${text!.toPlainText()} ~~~~~~~~~~~~~~~~~');
+    // print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    // print('~~ text = $text');
+    // print('~~ textHeightBehavior = $textHeightBehavior');
+    // print('~~ paragraph = ${layoutCache.paragraph}');
+    // print('~~ offset = ${offset + layoutCache.paintOffset}');
+    // print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
     canvas.drawParagraph(layoutCache.paragraph, offset + layoutCache.paintOffset);
   }
 

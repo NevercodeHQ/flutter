@@ -28,6 +28,7 @@ import 'theme_data.dart';
 // https://github.com/material-components/material-components-android/blob/master/lib/java/com/google/android/material/textfield/TextInputLayout.java
 const Duration _kTransitionDuration = Duration(milliseconds: 167);
 const Curve _kTransitionCurve = Curves.fastOutSlowIn;
+
 const double _kFinalLabelScale = 0.75;
 
 // The default duration for hint fade in/out transitions.
@@ -845,6 +846,8 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
     markNeedsLayout();
   }
 
+  double get _labelScale => _material3 ? 1.0 : _kFinalLabelScale;
+
   // Indicates that the decoration should be aligned to accommodate an outline
   // border.
   bool get _isOutlineAligned {
@@ -988,7 +991,8 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
         + (suffixIcon != null ? 0 : (textDirection == TextDirection.ltr ? contentPadding.right : contentPadding.left))),
     );
     // Increase the available width for the label when it is scaled down.
-    final double invertedLabelScale = lerpDouble(1.00, 1 / _kFinalLabelScale, decoration.floatingLabelProgress)!;
+    final double labelScale = material3 ? 1.0 : _labelScale;
+    final double invertedLabelScale = lerpDouble(1.00, 1 / labelScale, decoration.floatingLabelProgress)!;
     double suffixIconWidth = _boxSize(suffixIcon).width;
     if (decoration.border.isOutline) {
       suffixIconWidth = lerpDouble(suffixIconWidth, 0.0, decoration.floatingLabelProgress)!;
@@ -1006,6 +1010,9 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       label,
       boxConstraints.copyWith(maxWidth: labelWidth * invertedLabelScale),
     );
+    print('~~~~~~~~~~~~~~~~~~~~~ boxToBaseline[label] = ${boxToBaseline[label]}');
+    print('~~~~~~~~~~~~~~~~~~~~~ invertedLabelScale] = ${boxToBaseline[label]}');
+
     boxToBaseline[hint] = _layoutLineBox(
       hint,
       boxConstraints.copyWith(minWidth: inputWidth, maxWidth: inputWidth),
@@ -1044,14 +1051,27 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
     final Offset densityOffset = decoration.visualDensity.baseSizeAdjustment;
     boxToBaseline[input] = _layoutLineBox(
       input,
-      boxConstraints.deflate(EdgeInsets.only(
-        top: contentPadding.top + topHeight + densityOffset.dy / 2,
-        bottom: contentPadding.bottom + bottomHeight + densityOffset.dy / 2,
-      )).copyWith(
-        minWidth: inputWidth,
-        maxWidth: inputWidth,
-      ),
+      material3
+        ? boxConstraints.deflate(EdgeInsets.only(
+            top: contentPadding.top + topHeight + densityOffset.dy / 2,
+            bottom: contentPadding.bottom + bottomHeight + densityOffset.dy / 2,
+          )).copyWith(
+            minWidth: inputWidth,
+            maxWidth: inputWidth,
+          )
+        : boxConstraints.deflate(EdgeInsets.only(
+            top: contentPadding.top + topHeight + densityOffset.dy / 2,
+            bottom: contentPadding.bottom + bottomHeight + densityOffset.dy / 2,
+          )).copyWith(
+            minWidth: inputWidth,
+            maxWidth: inputWidth,
+          ),
     );
+
+    // if (boxToBaseline[input]! <= 19) {
+    //   print('*********************************');
+    //   boxToBaseline[input] = 4;
+    // }
 
     // The field can be occupied by a hint or by the input itself
     final double hintHeight = hint?.size.height ?? 0;
@@ -1061,6 +1081,18 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       boxToBaseline[input]!,
       boxToBaseline[hint]!,
     );
+
+    print('_____________________');
+    print('___ inputBox = ${input?.paintBounds}}');
+    print('___ inputHeight = $inputHeight');
+    print('___ inputDirectHeight = $inputDirectHeight');
+    print('___ boxToBaseline[input] = ${boxToBaseline[input]}');
+    print('___ contentPadding = $contentPadding');
+    print('___ densityOffset = $densityOffset');
+    print('___ topHeight = $topHeight');
+    print('___ bottomHeight = $bottomHeight');
+    print('_____________________');
+
 
     // Calculate the amount that prefix/suffix affects height above and below
     // the input.
@@ -1181,6 +1213,16 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       subtextCounterHeight,
       subtextHelperHeight,
     );
+
+    print(' /////////// ');
+    print(' // _RenderDecoration._layout - boxToBaseline[input] = ${boxToBaseline[input]}');
+    print(' // _RenderDecoration._layout - containerHeight = $containerHeight ');
+    print(' // _RenderDecoration._layout - inputBaseline = $inputBaseline ');
+    print(' // _RenderDecoration._layout - outlineBaseline = $outlineBaseline ');
+    print(' // _RenderDecoration._layout - subtextBaseline = $subtextBaseline ');
+    print(' // _RenderDecoration._layout - subtextHeight = $subtextHeight ');
+    print(' // _RenderDecoration._layout - densityOffset = $densityOffset ');
+    print(' /////////// ');
 
     return _RenderDecorationLayout(
       boxToBaseline: boxToBaseline,
@@ -1391,6 +1433,11 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
 
     late double baseline;
     double baselineLayout(RenderBox box, double x) {
+      if (box == input) {
+        print('@@@@@@@@@@@@@@@@ _RenderDecoration.performLayout.baselineLayout');
+        print('@@@@@@@@@@@@@@@@ baseline = $baseline');
+        print('@@@@@@@@@@@@@@@@ layout.boxToBaseline[box]! = ${layout.boxToBaseline[box]!}');
+      }
       _boxParentData(box).offset = Offset(x, baseline - layout.boxToBaseline[box]!);
       return box.size.width;
     }
@@ -1505,7 +1552,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       final double labelX = _boxParentData(label!).offset.dx;
       // +1 shifts the range of x from (-1.0, 1.0) to (0.0, 2.0).
       final double floatAlign = decoration.floatingLabelAlignment._x + 1;
-      final double floatWidth = _boxSize(label).width * _kFinalLabelScale;
+      final double floatWidth = _boxSize(label).width * _labelScale;
       // When floating label is centered, its x is relative to
       // _BorderContainer's x and is independent of label's x.
       switch (textDirection) {
@@ -1530,7 +1577,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
             _boxSize(container).width / 2.0 - floatWidth / 2.0,
             floatAlign);
       }
-      decoration.borderGap.extent = label!.size.width * _kFinalLabelScale;
+      decoration.borderGap.extent = label!.size.width * _labelScale;
     } else {
       decoration.borderGap.start = null;
       decoration.borderGap.extent = 0.0;
@@ -1560,7 +1607,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       final double labelWidth = _boxSize(label).width;
       // +1 shifts the range of x from (-1.0, 1.0) to (0.0, 2.0).
       final double floatAlign = decoration.floatingLabelAlignment._x + 1;
-      final double floatWidth = labelWidth * _kFinalLabelScale;
+      final double floatWidth = labelWidth * _labelScale;
       final double borderWeight = decoration.border.borderSide.width;
       final double t = decoration.floatingLabelProgress;
       // The center of the outline border label ends up a little below the
@@ -1568,8 +1615,8 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       final bool isOutlineBorder = decoration.border.isOutline;
       // Temporary opt-in fix for https://github.com/flutter/flutter/issues/54028
       // Center the scaled label relative to the border.
-      final double floatingY = isOutlineBorder ? (-labelHeight * _kFinalLabelScale) / 2.0 + borderWeight / 2.0 : contentPadding.top;
-      final double scale = lerpDouble(1.0, _kFinalLabelScale, t)!;
+      final double floatingY = isOutlineBorder ? (-labelHeight * _labelScale) / 2.0 + borderWeight / 2.0 : contentPadding.top;
+      final double scale = lerpDouble(1.0, _labelScale, t)!;
       final double centeredFloatX = _boxParentData(container!).offset.dx +
           _boxSize(container).width / 2.0 - floatWidth / 2.0;
       final double startX;
@@ -1591,6 +1638,10 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       final double floatEndX = lerpDouble(floatStartX, centeredFloatX, floatAlign)!;
       final double dx = lerpDouble(startX, floatEndX, t)!;
       final double dy = lerpDouble(0.0, floatingY - labelOffset.dy, t)!;
+      print("&&&&&&&&&&&&&&&&& _RenderDecoration.paint - labelHeight = $labelHeight");
+      print("&&&&&&&&&&&&&&&&& _RenderDecoration.paint - labelOffset = $labelOffset");
+      print("&&&&&&&&&&&&&&&&& _RenderDecoration.paint - dy = $dy");
+      print("&&&&&&&&&&&&&&&&& _RenderDecoration.paint - scale = $scale");
       _labelTransform = Matrix4.identity()
         ..translate(dx, labelOffset.dy + dy)
         ..scale(scale);
@@ -2090,11 +2141,14 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     final TextStyle? style = MaterialStateProperty.resolveAs(decoration.labelStyle, materialState)
       ?? MaterialStateProperty.resolveAs(themeData.inputDecorationTheme.labelStyle, materialState);
 
-    return themeData.textTheme.titleMedium!
+    final TextStyle effectiveStyle = themeData.textTheme.titleMedium!
       .merge(widget.baseStyle)
       .merge(defaultStyle)
-      .merge(style)
-      .copyWith(height: 1);
+      .merge(style);
+      //.copyWith(height: 1);
+
+    print('>>>>>>> _getInlineLabelStyle = $effectiveStyle');
+    return effectiveStyle;
   }
 
   // The base style for the inline hint when they're displayed "inline",
@@ -2105,10 +2159,13 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     final TextStyle? style = MaterialStateProperty.resolveAs(decoration.hintStyle, materialState)
       ?? MaterialStateProperty.resolveAs(themeData.inputDecorationTheme.hintStyle, materialState);
 
-    return themeData.textTheme.titleMedium!
+    final TextStyle effectiveStyle = themeData.textTheme.titleMedium!
       .merge(widget.baseStyle)
       .merge(defaultStyle)
       .merge(style);
+
+    print('>>>>>>> _getInlineHintStyle = $effectiveStyle');
+    return effectiveStyle;
   }
 
   TextStyle _getFloatingLabelStyle(ThemeData themeData, InputDecorationTheme defaults) {
@@ -2121,11 +2178,14 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     final TextStyle? style = MaterialStateProperty.resolveAs(decoration.floatingLabelStyle, materialState)
       ?? MaterialStateProperty.resolveAs(themeData.inputDecorationTheme.floatingLabelStyle, materialState);
 
-    return themeData.textTheme.titleMedium!
+    final TextStyle effectiveStyle = themeData.textTheme.titleMedium!
       .merge(widget.baseStyle)
       .merge(defaultTextStyle)
-      .merge(style)
-      .copyWith(height: 1);
+      .merge(style);
+      //.copyWith(height: 1);
+
+    print('>>>>>>> _getFloatingLabelStyle = $effectiveStyle');
+    return effectiveStyle;
   }
 
   TextStyle _getHelperStyle(ThemeData themeData, InputDecorationTheme defaults) {
@@ -2221,6 +2281,7 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     }
     border ??= _getDefaultBorder(themeData, defaults);
 
+    print(' //// _InputDecoratorState.build - _borderGap = $_borderGap');
     final Widget container = _BorderContainer(
       border: border,
       gap: _borderGap,
@@ -2229,6 +2290,11 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
       hoverColor: _getHoverColor(themeData),
       isHovering: isHovering,
     );
+
+    final TextStyle effectiveLabelStyle = widget._labelShouldWithdraw
+      ? _getFloatingLabelStyle(themeData, defaults)
+      : labelStyle;
+    print('///// effectiveLabelStyle = $effectiveLabelStyle');
 
     final Widget? label = decoration.labelText == null && decoration.label == null ? null : _Shaker(
       animation: _shakingLabelController.view,
@@ -2416,18 +2482,30 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
       contentPadding = decorationContentPadding ?? EdgeInsets.zero;
     } else if (!border.isOutline) {
       // 4.0: the vertical gap between the inline elements and the floating label.
-      floatingLabelHeight = MediaQuery.textScalerOf(context).scale(4.0 + 0.75 * labelStyle.fontSize!);
+      floatingLabelHeight = Theme.of(context).useMaterial3
+        ? MediaQuery.textScalerOf(context).scale(effectiveLabelStyle.fontSize! * (effectiveLabelStyle.height ?? 1.0))
+        : MediaQuery.textScalerOf(context).scale(4.0 + 0.75 * labelStyle.fontSize!);
       if (decoration.filled ?? false) {
-        contentPadding = decorationContentPadding ?? (decorationIsDense
-          ? const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 8.0)
-          : const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 12.0));
+        // See ttps://m3.material.io/foundations/layout/understanding-layout/spacing
+        contentPadding = Theme.of(context).useMaterial3
+            ? decorationContentPadding ?? (decorationIsDense
+              ? const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 4.0)
+              : const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 8.0))
+            : decorationContentPadding ?? (decorationIsDense
+              ? const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 8.0)
+              : const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 12.0));
       } else {
         // Not left or right padding for underline borders that aren't filled
         // is a small concession to backwards compatibility. This eliminates
         // the most noticeable layout change introduced by #13734.
-        contentPadding = decorationContentPadding ?? (decorationIsDense
-          ? const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0)
-          : const EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 12.0));
+        // See ttps://m3.material.io/foundations/layout/understanding-layout/spacing
+        contentPadding = Theme.of(context).useMaterial3
+            ? decorationContentPadding ?? (decorationIsDense
+              ? const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0)
+              : const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0))
+            : decorationContentPadding ?? (decorationIsDense
+              ? const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0)
+              : const EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 12.0));
       }
     } else {
       floatingLabelHeight = 0.0;
@@ -2435,6 +2513,11 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
         ? const EdgeInsets.fromLTRB(12.0, 20.0, 12.0, 12.0)
         : const EdgeInsets.fromLTRB(12.0, 24.0, 12.0, 16.0));
     }
+
+    print(' >>>>>>>>>>>>>> ${decoration.labelText}');
+    print(' >>>> _InputDecoratorState.build / floatingLabelHeight = $floatingLabelHeight');
+    print(' >>>> _InputDecoratorState.build / contentPadding = $contentPadding');
+    print(' >>>> _InputDecoratorState.build / visualDensity = ${themeData.visualDensity}');
 
     final _Decorator decorator = _Decorator(
       decoration: _Decoration(
@@ -4748,7 +4831,7 @@ class _InputDecoratorDefaultsM3 extends InputDecorationTheme {
 
   @override
   TextStyle? get floatingLabelStyle => MaterialStateTextStyle.resolveWith((Set<MaterialState> states) {
-    final TextStyle textStyle = _textTheme.bodyLarge ?? const TextStyle();
+    final TextStyle textStyle = _textTheme.bodySmall ?? const TextStyle();
     if (states.contains(MaterialState.disabled)) {
       return textStyle.copyWith(color: _colors.onSurface.withOpacity(0.38));
     }

@@ -2290,6 +2290,7 @@ class RenderEditable extends RenderBox with RelayoutWhenSystemFontsChangeMixin, 
       case TargetPlatform.windows:
         _caretPrototype = Rect.fromLTWH(0.0, _kCaretHeightOffset, cursorWidth, cursorHeight - 2.0 * _kCaretHeightOffset);
     }
+    print('»»»»»»»»»»»»» RenderEditable._computeCaretPrototype = $_caretPrototype');
   }
 
   // Computes the offset to apply to the given [sourceOffset] so it perfectly
@@ -2590,6 +2591,8 @@ class RenderEditable extends RenderBox with RelayoutWhenSystemFontsChangeMixin, 
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    print('{{{{{{{{{{{{{{ _textPainter.inlinePlaceholderBoxes }}}}}}}}}}}}}}');
+    print('{{{{ ${_textPainter.inlinePlaceholderBoxes} }}}}');
     _computeTextMetricsIfNeeded();
     if (_hasVisualOverflow && clipBehavior != Clip.none) {
       _clipRectLayer.layer = context.pushClipRect(

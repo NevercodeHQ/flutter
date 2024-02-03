@@ -2533,7 +2533,7 @@ class VisualDensity with Diagnosticable {
       case TargetPlatform.linux:
       case TargetPlatform.macOS:
       case TargetPlatform.windows:
-        return compact;
+        return standard;
     }
     return VisualDensity.standard;
   }
