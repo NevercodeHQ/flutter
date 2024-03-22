@@ -404,6 +404,48 @@ class DefaultTextEditingShortcuts extends StatelessWidget {
   // There is no complete documentation of iOS shortcuts: use macOS ones.
   static final Map<ShortcutActivator, Intent> _iOSShortcuts = _macShortcuts;
 
+  static final Map<ShortcutActivator, Intent> _windowsNumpadShortcuts = <ShortcutActivator, Intent>{
+    // When numLock is on, numpad keys shortcuts require shift to be pressed too.
+    const SingleActivator(LogicalKeyboardKey.numpad6, shift: true, numLock: LockState.locked): const ExtendSelectionByCharacterIntent(forward: true, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad4, shift: true, numLock: LockState.locked): const ExtendSelectionByCharacterIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad8, shift: true, numLock: LockState.locked): const ExtendSelectionVerticallyToAdjacentLineIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad2, shift: true, numLock: LockState.locked): const ExtendSelectionVerticallyToAdjacentLineIntent(forward: true, collapseSelection: true),
+
+    const SingleActivator(LogicalKeyboardKey.numpad6, shift: true, control: true, numLock: LockState.locked): const ExtendSelectionToNextWordBoundaryIntent(forward: true, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad4, shift: true, control: true, numLock: LockState.locked): const ExtendSelectionToNextWordBoundaryIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad8, shift: true, control: true, numLock: LockState.locked): const ExtendSelectionToNextParagraphBoundaryIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad2, shift: true, control: true, numLock: LockState.locked): const ExtendSelectionToNextParagraphBoundaryIntent(forward: true, collapseSelection: true),
+
+    const SingleActivator(LogicalKeyboardKey.numpad9, shift: true, numLock: LockState.locked): const ExtendSelectionVerticallyToAdjacentPageIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad3, shift: true, numLock: LockState.locked): const ExtendSelectionVerticallyToAdjacentPageIntent(forward: true, collapseSelection: true),
+
+    const SingleActivator(LogicalKeyboardKey.numpad7, shift: true, numLock: LockState.locked): const ExtendSelectionVerticallyToAdjacentLineIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad1, shift: true, numLock: LockState.locked): const ExtendSelectionVerticallyToAdjacentLineIntent(forward: true, collapseSelection: true),
+
+    const SingleActivator(LogicalKeyboardKey.numpadDecimal, shift: true, numLock: LockState.locked): const DeleteCharacterIntent(forward: true),
+    const SingleActivator(LogicalKeyboardKey.numpadDecimal, shift: true, control: true, numLock: LockState.locked): const DeleteToNextWordBoundaryIntent(forward: true),
+
+    // When numLock is off, numpad keys shortcuts require shift not to be pressed.
+    const SingleActivator(LogicalKeyboardKey.numpad6, numLock: LockState.unlocked): const ExtendSelectionByCharacterIntent(forward: true, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad4, numLock: LockState.unlocked): const ExtendSelectionByCharacterIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad8, numLock: LockState.unlocked): const ExtendSelectionVerticallyToAdjacentLineIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad2, numLock: LockState.unlocked): const ExtendSelectionVerticallyToAdjacentLineIntent(forward: true, collapseSelection: true),
+
+    const SingleActivator(LogicalKeyboardKey.numpad6, control: true, numLock: LockState.unlocked): const ExtendSelectionToNextWordBoundaryIntent(forward: true, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad4, control: true, numLock: LockState.unlocked): const ExtendSelectionToNextWordBoundaryIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad8, control: true, numLock: LockState.unlocked): const ExtendSelectionToNextParagraphBoundaryIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad2, control: true, numLock: LockState.unlocked): const ExtendSelectionToNextParagraphBoundaryIntent(forward: true, collapseSelection: true),
+
+    const SingleActivator(LogicalKeyboardKey.numpad9, numLock: LockState.unlocked): const ExtendSelectionVerticallyToAdjacentPageIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad3, numLock: LockState.unlocked): const ExtendSelectionVerticallyToAdjacentPageIntent(forward: true, collapseSelection: true),
+
+    const SingleActivator(LogicalKeyboardKey.numpad7, numLock: LockState.unlocked): const ExtendSelectionVerticallyToAdjacentLineIntent(forward: false, collapseSelection: true),
+    const SingleActivator(LogicalKeyboardKey.numpad1, numLock: LockState.unlocked): const ExtendSelectionVerticallyToAdjacentLineIntent(forward: true, collapseSelection: true),
+
+    const SingleActivator(LogicalKeyboardKey.numpadDecimal, numLock: LockState.unlocked): const DeleteCharacterIntent(forward: true),
+    const SingleActivator(LogicalKeyboardKey.numpadDecimal, control: true, numLock: LockState.unlocked): const DeleteToNextWordBoundaryIntent(forward: true),
+  };
+
   // The following key combinations have no effect on text editing on this
   // platform:
   //   * Meta + X
@@ -418,6 +460,7 @@ class DefaultTextEditingShortcuts extends StatelessWidget {
   //   * Meta + backspace
   static final Map<ShortcutActivator, Intent> _windowsShortcuts = <ShortcutActivator, Intent>{
     ..._commonShortcuts,
+    ..._windowsNumpadShortcuts,
     const SingleActivator(LogicalKeyboardKey.pageUp): const ExtendSelectionVerticallyToAdjacentPageIntent(forward: false, collapseSelection: true),
     const SingleActivator(LogicalKeyboardKey.pageDown): const ExtendSelectionVerticallyToAdjacentPageIntent(forward: true, collapseSelection: true),
     const SingleActivator(LogicalKeyboardKey.home): const ExtendSelectionToLineBreakIntent(forward: false, collapseSelection: true, continuesAtWrap: true),
