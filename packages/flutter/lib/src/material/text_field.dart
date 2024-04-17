@@ -314,6 +314,7 @@ class TextField extends StatefulWidget {
     this.buildCounter,
     this.scrollController,
     this.scrollPhysics,
+    this.scrollBehavior,
     this.autofillHints = const <String>[],
     this.contentInsertionConfiguration,
     this.clipBehavior = Clip.hardEdge,
@@ -779,6 +780,9 @@ class TextField extends StatefulWidget {
   /// {@macro flutter.widgets.editableText.scrollController}
   final ScrollController? scrollController;
 
+  /// {@macro flutter.widgets.editableText.scrollBehavior}
+  final ScrollBehavior? scrollBehavior;
+
   /// {@macro flutter.widgets.editableText.autofillHints}
   /// {@macro flutter.services.AutofillConfiguration.autofillHints}
   final Iterable<String>? autofillHints;
@@ -955,6 +959,7 @@ class TextField extends StatefulWidget {
     properties.add(DiagnosticsProperty<TextSelectionControls>('selectionControls', selectionControls, defaultValue: null));
     properties.add(DiagnosticsProperty<ScrollController>('scrollController', scrollController, defaultValue: null));
     properties.add(DiagnosticsProperty<ScrollPhysics>('scrollPhysics', scrollPhysics, defaultValue: null));
+    properties.add(DiagnosticsProperty<ScrollBehavior>('scrollBehavior', scrollBehavior, defaultValue: null));
     properties.add(DiagnosticsProperty<Clip>('clipBehavior', clipBehavior, defaultValue: Clip.hardEdge));
     properties.add(DiagnosticsProperty<bool>('scribbleEnabled', scribbleEnabled, defaultValue: true));
     properties.add(DiagnosticsProperty<bool>('enableIMEPersonalizedLearning', enableIMEPersonalizedLearning, defaultValue: true));
@@ -1516,6 +1521,7 @@ class _TextFieldState extends State<TextField> with RestorationMixin implements 
           dragStartBehavior: widget.dragStartBehavior,
           scrollController: widget.scrollController,
           scrollPhysics: widget.scrollPhysics,
+          scrollBehavior: widget.scrollBehavior,
           autofillClient: this,
           autocorrectionTextRectColor: autocorrectionTextRectColor,
           clipBehavior: widget.clipBehavior,

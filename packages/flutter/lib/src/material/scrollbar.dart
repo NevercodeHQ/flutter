@@ -340,6 +340,7 @@ class _MaterialScrollbarState extends RawScrollbarState<_MaterialScrollbar> {
 
   @override
   void updateScrollbarPainter() {
+    print('>>> updateScrollbarPainter - MediaQuery.paddingOf(context) = ${MediaQuery.paddingOf(context)}');
     scrollbarPainter
       ..color = _thumbColor.resolve(_states)
       ..trackColor = _trackColor.resolve(_states)

@@ -5240,6 +5240,7 @@ class EditableTextState extends State<EditableText> with AutomaticKeepAliveClien
                       overscroll: false,
                     ),
                     viewportBuilder: (BuildContext context, ViewportOffset offset) {
+                      print('>>>> viewportBuilder - offset = $offset');
                       return CompositedTransformTarget(
                         link: _toolbarLayerLink,
                         child: Semantics(

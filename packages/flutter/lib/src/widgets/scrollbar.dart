@@ -377,9 +377,13 @@ class ScrollbarPainter extends ChangeNotifier implements CustomPainter {
 
   Rect? _trackRect;
   // The full painted length of the track
-  double get _trackExtent => _lastMetrics!.viewportDimension - _totalTrackMainAxisOffsets;
+  double get _trackExtent {
+    final double extent = _lastMetrics!.viewportDimension - _totalTrackMainAxisOffsets;
+    print('>>>> _lastMetrics!.viewportDimension = ${_lastMetrics!.viewportDimension}');
+    return extent;
+  }
   // The full length of the track that the thumb can travel
-  double get _traversableTrackExtent => _trackExtent - (2 * mainAxisMargin);
+  double get _traversableTrackExtent => _trackExtent; // - (2 * mainAxisMargin);
   // Track Offsets
   // The track is offset by only padding.
   double get _totalTrackMainAxisOffsets => _isVertical ? padding.vertical : padding.horizontal;
@@ -493,6 +497,7 @@ class ScrollbarPainter extends ChangeNotifier implements CustomPainter {
     ScrollMetrics metrics,
     AxisDirection axisDirection,
   ) {
+    print('---->>>> _lastMetrics = $_lastMetrics');
     if (_lastMetrics != null &&
         _lastMetrics!.extentBefore == metrics.extentBefore &&
         _lastMetrics!.extentInside == metrics.extentInside &&
