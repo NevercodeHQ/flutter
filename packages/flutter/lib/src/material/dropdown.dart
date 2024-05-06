@@ -1650,6 +1650,10 @@ class DropdownButtonFormField<T> extends FormField<T> {
                 'with the same value',
               ),
        assert(itemHeight == null || itemHeight >= kMinInteractiveDimension),
+       assert(
+         hint == null || decoration?.hintText == null,
+         'Either hint or decoration.hintText can be specified, but not both',
+       ),
        decoration = decoration ?? InputDecoration(focusColor: focusColor),
        super(
          initialValue: value,
@@ -1660,6 +1664,9 @@ class DropdownButtonFormField<T> extends FormField<T> {
            final InputDecoration effectiveDecoration = decorationArg.applyDefaults(
              Theme.of(field.context).inputDecorationTheme,
            );
+           if (effectiveDecoration.hintText != null) {
+             hint = Text(effectiveDecoration.hintText!);
+           }
 
            final bool showSelectedItem = items != null && items.where((DropdownMenuItem<T> item) => item.value == state.value).isNotEmpty;
            bool isHintOrDisabledHintAvailable() {
