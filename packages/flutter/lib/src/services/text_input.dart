@@ -1809,6 +1809,7 @@ class TextInput {
 
   Future<dynamic> _handleTextInputInvocation(MethodCall methodCall) async {
     final String method = methodCall.method;
+    print('>>> RECEIVED - $method');
     switch (method) {
       case 'TextInputClient.focusElement':
         final List<dynamic> args = methodCall.arguments as List<dynamic>;
@@ -2275,6 +2276,7 @@ class _PlatformTextInputControl with TextInputControl {
 
   @override
   void attach(TextInputClient client, TextInputConfiguration configuration) {
+    print('INVOKE - TextInput.setClient');
     _channel.invokeMethod<void>(
       'TextInput.setClient',
       <Object>[
@@ -2286,11 +2288,13 @@ class _PlatformTextInputControl with TextInputControl {
 
   @override
   void detach(TextInputClient client) {
+    print('INVOKE - TextInput.clearClient');
     _channel.invokeMethod<void>('TextInput.clearClient');
   }
 
   @override
   void updateConfig(TextInputConfiguration configuration) {
+    print('INVOKE - TextInput.updateConfig');
     _channel.invokeMethod<void>(
       'TextInput.updateConfig',
       _configurationToJson(configuration),
@@ -2299,6 +2303,7 @@ class _PlatformTextInputControl with TextInputControl {
 
   @override
   void setEditingState(TextEditingValue value) {
+    print('INVOKE - TextInput.setEditingState - value = $value');
     _channel.invokeMethod<void>(
       'TextInput.setEditingState',
       value.toJSON(),
@@ -2307,16 +2312,19 @@ class _PlatformTextInputControl with TextInputControl {
 
   @override
   void show() {
+    print('INVOKE - TextInput.show');
     _channel.invokeMethod<void>('TextInput.show');
   }
 
   @override
   void hide() {
+    print('INVOKE - TextInput.hide');
     _channel.invokeMethod<void>('TextInput.hide');
   }
 
   @override
   void setEditableSizeAndTransform(Size editableBoxSize, Matrix4 transform) {
+    print('INVOKE - TextInput.setEditableSizeAndTransform');
     _channel.invokeMethod<void>(
       'TextInput.setEditableSizeAndTransform',
       <String, dynamic>{
@@ -2329,6 +2337,7 @@ class _PlatformTextInputControl with TextInputControl {
 
   @override
   void setComposingRect(Rect rect) {
+    print('INVOKE - TextInput.setMarkedTextRect');
     _channel.invokeMethod<void>(
       'TextInput.setMarkedTextRect',
       <String, dynamic>{
@@ -2342,6 +2351,7 @@ class _PlatformTextInputControl with TextInputControl {
 
   @override
   void setCaretRect(Rect rect) {
+    print('INVOKE - TextInput.setCaretRect');
     _channel.invokeMethod<void>(
       'TextInput.setCaretRect',
       <String, dynamic>{
@@ -2355,6 +2365,7 @@ class _PlatformTextInputControl with TextInputControl {
 
   @override
   void setSelectionRects(List<SelectionRect> selectionRects) {
+    print('INVOKE - TextInput.setSelectionRects');
     _channel.invokeMethod<void>(
       'TextInput.setSelectionRects',
       selectionRects.map((SelectionRect rect) {
@@ -2379,6 +2390,7 @@ class _PlatformTextInputControl with TextInputControl {
     required TextDirection textDirection,
     required TextAlign textAlign,
   }) {
+    print('INVOKE - TextInput.setStyle');
     _channel.invokeMethod<void>(
       'TextInput.setStyle',
       <String, dynamic>{
