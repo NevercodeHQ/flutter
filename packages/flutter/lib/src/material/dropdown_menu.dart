@@ -650,7 +650,7 @@ class _DropdownMenuState<T> extends State<DropdownMenu<T>> {
           )
         : effectiveStyle;
 
-      final Widget  menuItemButton = MenuItemButton(
+      final Widget menuItemButton = MenuItemButton(
         key: enableScrollToHighlight ? buttonItemKeys[i] : null,
         style: effectiveStyle,
         leadingIcon: entry.leadingIcon,
@@ -666,6 +666,9 @@ class _DropdownMenuState<T> extends State<DropdownMenu<T>> {
             }
           : null,
         requestFocusOnHover: false,
+        onFocusChange: (bool focused) {
+          print('////// focused = $focused - label = ${entry.label}');
+        } ,
         child: label,
       );
       result.add(menuItemButton);
@@ -861,7 +864,8 @@ class _DropdownMenuState<T> extends State<DropdownMenu<T>> {
           width: widget.width,
           children: <Widget>[
             textField,
-            ..._initialMenu!,
+            //..._initialMenu!,
+            ..._initialMenu!.map((Widget item) => controller.isOpen ? item : ExcludeFocus(child: item)),
             trailingButton,
             leadingButton,
           ],
