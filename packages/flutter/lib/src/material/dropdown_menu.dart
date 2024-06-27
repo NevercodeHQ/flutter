@@ -781,8 +781,9 @@ class _DropdownMenuState<T> extends State<DropdownMenu<T>> {
       builder: (BuildContext context, MenuController controller, Widget? child) {
         assert(_initialMenu != null);
         final Widget trailingButton = Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: EdgeInsets.zero,
           child: IconButton(
+            padding: EdgeInsets.zero,
             isSelected: controller.isOpen,
             icon: widget.trailingIcon ?? const Icon(Icons.arrow_drop_down),
             selectedIcon: widget.selectedTrailingIcon ?? const Icon(Icons.arrow_drop_up),
@@ -847,6 +848,7 @@ class _DropdownMenuState<T> extends State<DropdownMenu<T>> {
               child: widget.leadingIcon
             ) : null,
             suffixIcon: trailingButton,
+            suffixIconConstraints: BoxConstraints.tightFor(height: 24),
           ).applyDefaults(effectiveInputDecorationTheme)
         );
 
