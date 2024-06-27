@@ -1119,6 +1119,7 @@ class _ScaffoldLayout extends MultiChildLayoutDelegate {
     // Set the size of the SnackBar early if the behavior is fixed so
     // the FAB can be positioned correctly.
     if (hasChild(_ScaffoldSlot.snackBar) && !isSnackBarFloating) {
+      print('>>>>> layoutChild - isSnackBarFloating = $isSnackBarFloating');
       snackBarSize = layoutChild(_ScaffoldSlot.snackBar, fullWidthConstraints);
     }
 
@@ -1165,11 +1166,15 @@ class _ScaffoldLayout extends MultiChildLayoutDelegate {
     if (hasChild(_ScaffoldSlot.snackBar)) {
       final bool hasCustomWidth = snackBarWidth != null && snackBarWidth! < size.width;
       if (snackBarSize == Size.zero) {
+        print('>>>>> layoutChild - hasCustomWidth = $hasCustomWidth');
+
         snackBarSize = layoutChild(
           _ScaffoldSlot.snackBar,
           hasCustomWidth ? looseConstraints : fullWidthConstraints,
         );
       }
+
+      print('>>>>> snackBarSize = $snackBarSize');
 
       final double snackBarYOffsetBase;
       final bool showAboveFab = switch (currentFloatingActionButtonLocation) {

@@ -726,35 +726,44 @@ class _SnackBarState extends State<SnackBar> {
         ),
     ];
 
+    // Widget snackBar = Padding(
+    //   padding: padding,
+    //     child: Wrap(
+    //       children: <Widget>[
+    //         Row(
+    //           mainAxisSize: MainAxisSize.min,
+    //           children: <Widget>[
+    //             Expanded(
+    //               child: Container(
+    //                 padding: widget.padding == null
+    //                     ? const EdgeInsets.symmetric(
+    //                         vertical: _singleLineVerticalPadding)
+    //                     : null,
+    //                 child: DefaultTextStyle(
+    //                   style: contentTextStyle!,
+    //                   child: widget.content,
+    //                 ),
+    //               ),
+    //             ),
+    //             if (!willOverflowAction) ...maybeActionAndIcon,
+    //             if (willOverflowAction) SizedBox(width: snackBarWidth * 0.4),
+    //           ],
+    //         ),
+    //         if (willOverflowAction)
+    //           Padding(
+    //             padding: const EdgeInsets.only(bottom: _singleLineVerticalPadding),
+    //             child: Row(mainAxisAlignment: MainAxisAlignment.end, children: maybeActionAndIcon),
+    //           ),
+    //         ],
+    //     ),
+    // );
+
     Widget snackBar = Padding(
       padding: padding,
-        child: Wrap(
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: Container(
-                    padding: widget.padding == null
-                        ? const EdgeInsets.symmetric(
-                            vertical: _singleLineVerticalPadding)
-                        : null,
-                    child: DefaultTextStyle(
-                      style: contentTextStyle!,
-                      child: widget.content,
-                    ),
-                  ),
-                ),
-                if (!willOverflowAction) ...maybeActionAndIcon,
-                if (willOverflowAction) SizedBox(width: snackBarWidth * 0.4),
-              ],
-            ),
-            if (willOverflowAction)
-              Padding(
-                padding: const EdgeInsets.only(bottom: _singleLineVerticalPadding),
-                child: Row(mainAxisAlignment: MainAxisAlignment.end, children: maybeActionAndIcon),
-              ),
-            ],
-        ),
+      child: DefaultTextStyle(
+        style: contentTextStyle!,
+        child: widget.content,
+      ),
     );
 
     if (!isFloatingSnackBar) {
@@ -788,10 +797,12 @@ class _SnackBarState extends State<SnackBar> {
     if (isFloatingSnackBar) {
       // If width is provided, do not include horizontal margins.
       if (width != null) {
-        snackBar = Container(
-          margin: EdgeInsets.only(top: margin.top, bottom: margin.bottom),
-          width: width,
-          child: snackBar,
+        snackBar = Center(
+          // child: Container(
+          //   margin: EdgeInsets.only(top: margin.top, bottom: margin.bottom),
+          //   //width: width,
+            child: snackBar,
+          //),
         );
       } else {
         snackBar = Padding(
