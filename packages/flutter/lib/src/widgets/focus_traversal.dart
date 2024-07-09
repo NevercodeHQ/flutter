@@ -1975,6 +1975,7 @@ class NextFocusAction extends Action<NextFocusIntent> {
   /// focus to platform UI.
   @override
   bool invoke(NextFocusIntent intent) {
+    print('>>> NextFocusIntent.invoke');
     return primaryFocus!.nextFocus();
   }
 
@@ -2010,6 +2011,7 @@ class PreviousFocusAction extends Action<PreviousFocusIntent> {
   /// pass focus to platform UI.
   @override
   bool invoke(PreviousFocusIntent intent) {
+    print('>>> PreviousFocusIntent.invoke');
     return primaryFocus!.previousFocus();
   }
 

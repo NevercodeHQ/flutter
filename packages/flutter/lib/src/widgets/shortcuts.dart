@@ -312,6 +312,8 @@ class LogicalKeySet extends KeySet<LogicalKeyboardKey> with Diagnosticable
 
   @override
   bool accepts(KeyEvent event, HardwareKeyboard state) {
+    print('*** LogicalKeySet.accepts - _checkKeyRequirements = ${_checkKeyRequirements(state.logicalKeysPressed)}');
+
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return false;
     }
@@ -559,6 +561,11 @@ class SingleActivator with Diagnosticable, MenuSerializableShortcut implements S
 
   @override
   bool accepts(KeyEvent event, HardwareKeyboard state) {
+    print('*** SingleActivator.accepts - _shouldAcceptModifiers = ${_shouldAcceptModifiers(state.logicalKeysPressed)}');
+    print('   /// event = $event');
+    for (final LogicalKeyboardKey logicalKey in state.logicalKeysPressed) {
+      print('   ---      key pressed = $logicalKey');
+    }
     return (event is KeyDownEvent || (includeRepeats && event is KeyRepeatEvent))
         && triggers.contains(event.logicalKey)
         && _shouldAcceptModifiers(state.logicalKeysPressed)
@@ -742,6 +749,7 @@ class CharacterActivator with Diagnosticable, MenuSerializableShortcut implement
 
   @override
   bool accepts(KeyEvent event, HardwareKeyboard state) {
+    print('*** Character.accepts - _shouldAcceptModifiers = ${_shouldAcceptModifiers(state.logicalKeysPressed)}');
     // Ignore triggers, since we're only interested in the character.
     return event.character == character
         && (event is KeyDownEvent || (includeRepeats && event is KeyRepeatEvent))
@@ -869,8 +877,11 @@ class ShortcutManager with Diagnosticable, ChangeNotifier {
   ///
   /// Returns null if no intent matches the current set of pressed keys.
   Intent? _find(KeyEvent event, HardwareKeyboard state) {
+    print('>>>>> _find - _getCandidates(event.logicalKey) = ${_getCandidates(event.logicalKey)}');
     for (final _ActivatorIntentPair activatorIntent in _getCandidates(event.logicalKey)) {
+      print('    -> _find - activatorIntent = $activatorIntent');
       if (activatorIntent.activator.accepts(event, state)) {
+        print('    -> accepted - activatorIntent.intent = ${activatorIntent.intent}');
         return activatorIntent.intent;
       }
     }
