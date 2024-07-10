@@ -611,6 +611,7 @@ class _Decoration {
     this.helperError,
     this.counter,
     this.container,
+    required this.scale,
   });
 
   final EdgeInsetsDirectional contentPadding;
@@ -634,6 +635,7 @@ class _Decoration {
   final Widget? helperError;
   final Widget? counter;
   final Widget? container;
+  final double scale;
 
   @override
   bool operator ==(Object other) {
@@ -732,6 +734,8 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
   // TODO(bleroux): consider defining this value as a Material token and making it
   // configurable by InputDecorationTheme.
   double get subtextGap => material3 ? 4.0 : 8.0;
+
+  double get _labelScale => decoration.scale;
 
   RenderBox? get icon => childForSlot(_DecorationSlot.icon);
   RenderBox? get input => childForSlot(_DecorationSlot.input);
@@ -958,6 +962,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
     required ChildLayouter layoutChild,
     required _ChildBaselineGetter getBaseline,
   }) {
+    print('>>>> _labelScale = $_labelScale');
     assert(
       constraints.maxWidth < double.infinity,
       'An InputDecorator, which is typically created by a TextField, cannot '
@@ -1012,7 +1017,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       );
 
       // Increase the available width for the label when it is scaled down.
-      final double invertedLabelScale = lerpDouble(1.00, 1 / _kFinalLabelScale, decoration.floatingLabelProgress)!;
+      final double invertedLabelScale = lerpDouble(1.00, 1 / _labelScale, decoration.floatingLabelProgress)!;
       final BoxConstraints labelConstraints = boxConstraints.copyWith(maxWidth: labelWidth * invertedLabelScale);
       layoutChild(label, labelConstraints);
 
@@ -1431,7 +1436,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       final double labelX = _boxParentData(label!).offset.dx;
       // +1 shifts the range of x from (-1.0, 1.0) to (0.0, 2.0).
       final double floatAlign = decoration.floatingLabelAlignment._x + 1;
-      final double floatWidth = _boxSize(label).width * _kFinalLabelScale;
+      final double floatWidth = _boxSize(label).width * _labelScale;
       // When floating label is centered, its x is relative to
       // _BorderContainer's x and is independent of label's x.
       switch (textDirection) {
@@ -1456,7 +1461,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
             _boxSize(container).width / 2.0 - floatWidth / 2.0,
             floatAlign);
       }
-      decoration.borderGap.extent = label!.size.width * _kFinalLabelScale;
+      decoration.borderGap.extent = label!.size.width * _labelScale;
     } else {
       decoration.borderGap.start = null;
       decoration.borderGap.extent = 0.0;
@@ -1482,7 +1487,7 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       final double labelWidth = _boxSize(label).width;
       // +1 shifts the range of x from (-1.0, 1.0) to (0.0, 2.0).
       final double floatAlign = decoration.floatingLabelAlignment._x + 1;
-      final double floatWidth = labelWidth * _kFinalLabelScale;
+      final double floatWidth = labelWidth * _labelScale;
       final double borderWeight = decoration.border.borderSide.width;
       final double t = decoration.floatingLabelProgress;
       // The center of the outline border label ends up a little below the
@@ -1490,9 +1495,9 @@ class _RenderDecoration extends RenderBox with SlottedContainerRenderObjectMixin
       final bool isOutlineBorder = decoration.border.isOutline;
       // Temporary opt-in fix for https://github.com/flutter/flutter/issues/54028
       // Center the scaled label relative to the border.
-      final double outlinedFloatingY = (-labelHeight * _kFinalLabelScale) / 2.0 + borderWeight / 2.0;
+      final double outlinedFloatingY = (-labelHeight * _labelScale) / 2.0 + borderWeight / 2.0;
       final double floatingY = isOutlineBorder ? outlinedFloatingY : contentPadding.top + _densityOffset.dy / 2;
-      final double scale = lerpDouble(1.0, _kFinalLabelScale, t)!;
+      final double scale = lerpDouble(1.0, _labelScale, t)!;
       final double centeredFloatX = _boxParentData(container!).offset.dx +
           _boxSize(container).width / 2.0 - floatWidth / 2.0;
       final double startX;
@@ -2391,7 +2396,8 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
       contentPadding = decorationContentPadding ?? EdgeInsetsDirectional.zero;
     } else if (!border.isOutline) {
       // 4.0: the vertical gap between the inline elements and the floating label.
-      floatingLabelHeight = MediaQuery.textScalerOf(context).scale(4.0 + 0.75 * labelStyle.fontSize!);
+      floatingLabelHeight = MediaQuery.textScalerOf(context).scale(4.0 + _getFloatingLabelStyle(themeData, defaults).fontSize!);
+      print('>>>>> floatingLabelHeight = $floatingLabelHeight');
       if (decoration.filled ?? false) {
         contentPadding = decorationContentPadding ?? (Theme.of(context).useMaterial3
           ? decorationIsDense
@@ -2445,7 +2451,8 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
         suffixIcon: suffixIcon,
         helperError: helperError,
         counter: counter,
-        container: container
+        container: container,
+        scale: decoration.floatingLabelStyle!.fontSize! / decoration.labelStyle!.fontSize!,
       ),
       textDirection: textDirection,
       textBaseline: textBaseline,
