@@ -1984,7 +1984,7 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     }
     final Color enabledColor = themeData.colorScheme.onSurface.withOpacity(0.38);
     if (isHovering) {
-      final Color hoverColor = decoration.hoverColor ?? themeData.inputDecorationTheme.hoverColor ?? themeData.hoverColor;
+      final Color hoverColor = decoration.hoverColor ?? themeData.hoverColor;
       return Color.alphaBlend(hoverColor.withOpacity(0.12), enabledColor);
     }
     return enabledColor;
@@ -2004,12 +2004,11 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     if (decoration.filled == null || !decoration.filled! || !decoration.enabled) {
       return Colors.transparent;
     }
-    return decoration.hoverColor ?? themeData.inputDecorationTheme.hoverColor ?? themeData.hoverColor;
+    return decoration.hoverColor ?? themeData.hoverColor;
   }
 
   Color _getIconColor(ThemeData themeData, InputDecorationTheme defaults) {
     return  MaterialStateProperty.resolveAs(decoration.iconColor, materialState)
-      ?? MaterialStateProperty.resolveAs(themeData.inputDecorationTheme.iconColor, materialState)
       ?? MaterialStateProperty.resolveAs(defaults.iconColor!, materialState);
   }
 
@@ -2018,7 +2017,6 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     IconButtonThemeData iconButtonTheme,
     InputDecorationTheme defaults) {
     return MaterialStateProperty.resolveAs(decoration.prefixIconColor, materialState)
-      ?? MaterialStateProperty.resolveAs(inputDecorationTheme.prefixIconColor, materialState)
       ?? iconButtonTheme.style?.foregroundColor?.resolve(materialState)
       ?? MaterialStateProperty.resolveAs(defaults.prefixIconColor!, materialState);
   }
@@ -2029,7 +2027,6 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     InputDecorationTheme defaults,
   ) {
     return MaterialStateProperty.resolveAs(decoration.suffixIconColor, materialState)
-      ?? MaterialStateProperty.resolveAs(inputDecorationTheme.suffixIconColor, materialState)
       ?? iconButtonTheme.style?.foregroundColor?.resolve(materialState)
       ?? MaterialStateProperty.resolveAs(defaults.suffixIconColor!, materialState);
   }
@@ -2051,8 +2048,7 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
   TextStyle _getInlineLabelStyle(ThemeData themeData, InputDecorationTheme defaults) {
     final TextStyle defaultStyle = MaterialStateProperty.resolveAs(defaults.labelStyle!, materialState);
 
-    final TextStyle? style = MaterialStateProperty.resolveAs(decoration.labelStyle, materialState)
-      ?? MaterialStateProperty.resolveAs(themeData.inputDecorationTheme.labelStyle, materialState);
+    final TextStyle? style = MaterialStateProperty.resolveAs(decoration.labelStyle, materialState);
 
     return themeData.textTheme.titleMedium!
       .merge(widget.baseStyle)
@@ -2066,8 +2062,7 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
   TextStyle _getInlineHintStyle(ThemeData themeData, InputDecorationTheme defaults) {
     final TextStyle defaultStyle = MaterialStateProperty.resolveAs(defaults.hintStyle!, materialState);
 
-    final TextStyle? style = MaterialStateProperty.resolveAs(decoration.hintStyle, materialState)
-      ?? MaterialStateProperty.resolveAs(themeData.inputDecorationTheme.hintStyle, materialState);
+    final TextStyle? style = MaterialStateProperty.resolveAs(decoration.hintStyle, materialState);
 
     return (themeData.useMaterial3 ? themeData.textTheme.bodyLarge! : themeData.textTheme.titleMedium!)
       .merge(widget.baseStyle)
@@ -2082,8 +2077,7 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     }
     defaultTextStyle = defaultTextStyle.merge(decoration.floatingLabelStyle ?? decoration.labelStyle);
 
-    final TextStyle? style = MaterialStateProperty.resolveAs(decoration.floatingLabelStyle, materialState)
-      ?? MaterialStateProperty.resolveAs(themeData.inputDecorationTheme.floatingLabelStyle, materialState);
+    final TextStyle? style = MaterialStateProperty.resolveAs(decoration.floatingLabelStyle, materialState);
 
     return themeData.textTheme.titleMedium!
       .merge(widget.baseStyle)
