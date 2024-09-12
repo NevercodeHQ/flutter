@@ -780,6 +780,8 @@ class _DropdownMenuState<T> extends State<DropdownMenu<T>> {
 
   @override
   Widget build(BuildContext context) {
+    print('-----> viewInsetsOf = ${MediaQuery.viewInsetsOf(context).vertical}');
+
     final TextDirection textDirection = Directionality.of(context);
     _initialMenu ??= _buildButtons(widget.dropdownMenuEntries, textDirection, enableScrollToHighlight: false);
     final DropdownMenuThemeData theme = DropdownMenuTheme.of(context);
