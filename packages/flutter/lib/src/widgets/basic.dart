@@ -1677,6 +1677,8 @@ class CompositedTransformFollower extends SingleChildRenderObjectWidget {
     this.offset = Offset.zero,
     this.targetAnchor = Alignment.topLeft,
     this.followerAnchor = Alignment.topLeft,
+    this.allowedRect,
+    this.contentKey,
     super.child,
   });
 
@@ -1724,6 +1726,14 @@ class CompositedTransformFollower extends SingleChildRenderObjectWidget {
   /// position.
   final Offset offset;
 
+  /// An optional rect that defines bounds into which the follower inner widget
+  /// associated with [contentKey] should be painted if possible.
+  final Rect? allowedRect;
+
+  /// An optional key associated with the follower inner widget that should be
+  /// visible inside the bounds defined by [allowedRect].
+  final GlobalKey? contentKey;
+
   @override
   RenderFollowerLayer createRenderObject(BuildContext context) {
     return RenderFollowerLayer(
@@ -1732,6 +1742,8 @@ class CompositedTransformFollower extends SingleChildRenderObjectWidget {
       offset: offset,
       leaderAnchor: targetAnchor,
       followerAnchor: followerAnchor,
+      allowedRect: allowedRect,
+      contentKey: contentKey,
     );
   }
 

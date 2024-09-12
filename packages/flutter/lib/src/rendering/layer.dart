@@ -2328,6 +2328,10 @@ class LayerLink {
   /// layout.
   Size? leaderSize;
 
+  /// The postion of the content of the connected [LeaderLayer]
+  /// in global coordinates.
+  Offset? globalOffset;
+
   @override
   String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
     return '${describeIdentity(this)}(${ _leader != null ? "<linked>" : "<dangling>" })';

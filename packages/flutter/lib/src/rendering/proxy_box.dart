@@ -10,11 +10,11 @@ library;
 
 import 'dart:ui' as ui show Color, Gradient, Image, ImageFilter;
 
-import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 import 'box.dart';
 import 'layer.dart';
@@ -4796,11 +4796,15 @@ class RenderFollowerLayer extends RenderProxyBox {
     Alignment leaderAnchor = Alignment.topLeft,
     Alignment followerAnchor = Alignment.topLeft,
     RenderBox? child,
+    Rect? allowedRect,
+    GlobalKey? contentKey,
   }) : _link = link,
        _showWhenUnlinked = showWhenUnlinked,
        _offset = offset,
        _leaderAnchor = leaderAnchor,
        _followerAnchor = followerAnchor,
+       _allowedRect = allowedRect,
+       _contentKey = contentKey,
        super(child);
 
   /// The link object that connects this [RenderFollowerLayer] with a
@@ -4846,8 +4850,8 @@ class RenderFollowerLayer extends RenderProxyBox {
     markNeedsPaint();
   }
 
-  /// The anchor point on the linked [RenderLeaderLayer] that [followerAnchor]
-  /// will line up with.
+  /// The preferred anchor point on the linked [RenderLeaderLayer] that
+  /// [leaderAnchor] will line up with.
   ///
   /// {@template flutter.rendering.RenderFollowerLayer.leaderAnchor}
   /// For example, when [leaderAnchor] and [followerAnchor] are both
@@ -4860,6 +4864,10 @@ class RenderFollowerLayer extends RenderProxyBox {
   /// {@endtemplate}
   ///
   /// Defaults to [Alignment.topLeft].
+  ///
+  /// if [allowedRect] and [contentKey] are not null, the effective leader anchor
+  /// value will be adjusted in order for the widget associated to [contentKey]
+  /// to be inside [allowedRect].
   Alignment get leaderAnchor => _leaderAnchor;
   Alignment _leaderAnchor;
   set leaderAnchor(Alignment value) {
@@ -4870,12 +4878,16 @@ class RenderFollowerLayer extends RenderProxyBox {
     markNeedsPaint();
   }
 
-  /// The anchor point on this [RenderFollowerLayer] that will line up with
-  /// [followerAnchor] on the linked [RenderLeaderLayer].
+  /// The preferred anchor point on this [RenderFollowerLayer] that will line up
+  /// with [followerAnchor] on the linked [RenderLeaderLayer].
   ///
   /// {@macro flutter.rendering.RenderFollowerLayer.leaderAnchor}
   ///
   /// Defaults to [Alignment.topLeft].
+  ///
+  /// if [allowedRect] and [contentKey] are not null, the effective follower
+  /// anchor value will be adjusted in order for the widget associated
+  /// to [contentKey] to be inside [allowedRect].
   Alignment get followerAnchor => _followerAnchor;
   Alignment _followerAnchor;
   set followerAnchor(Alignment value) {
@@ -4883,6 +4895,30 @@ class RenderFollowerLayer extends RenderProxyBox {
       return;
     }
     _followerAnchor = value;
+    markNeedsPaint();
+  }
+
+  /// An optional rect that defines bounds into which the follower inner widget
+  /// associated with [contentKey] should be painted if possible.
+  Rect? get allowedRect => _allowedRect;
+  Rect? _allowedRect;
+  set allowedRect(Rect? value) {
+    if (_allowedRect == value) {
+      return;
+    }
+    _allowedRect = value;
+    markNeedsPaint();
+  }
+
+  /// An optional key associated with the follower inner widget that should be
+  /// visible inside the bounds defined by [allowedRect].
+  GlobalKey? get contentKey => _contentKey;
+  GlobalKey? _contentKey;
+  set contentKey(GlobalKey? value) {
+    if (_contentKey == value) {
+      return;
+    }
+    _contentKey = value;
     markNeedsPaint();
   }
 
@@ -4942,9 +4978,22 @@ class RenderFollowerLayer extends RenderProxyBox {
       'leaderSize is required when leaderAnchor is not Alignment.topLeft '
       '(current value is $leaderAnchor).',
     );
-    final Offset effectiveLinkedOffset = leaderSize == null
+    Offset effectiveLinkedOffset = leaderSize == null
       ? this.offset
       : leaderAnchor.alongSize(leaderSize) - followerAnchor.alongSize(size) + this.offset;
+
+    if (allowedRect != null && leaderSize != null && link.globalOffset != null && contentKey != null) {
+      // Check if the follower will be painted outside bottom bounds.
+      // TODO(bleroux): implements all the out of bounds cases. For the moment,
+      // cheching only bottom suits DropdownMenu use case.
+      final RenderBox contentBox = contentKey!.currentContext!.findRenderObject()! as RenderBox;
+      final double followerBottom = link.globalOffset!.dy + effectiveLinkedOffset.dy + contentBox.size.height;
+      if (followerBottom > allowedRect!.bottom) {
+        const Alignment adjustedLeaderAnchor = Alignment.topLeft;
+        const Alignment adjustedFollowerAnchor = Alignment.bottomLeft;
+        effectiveLinkedOffset = adjustedLeaderAnchor.alongSize(leaderSize) - adjustedFollowerAnchor.alongSize(contentBox.size) + this.offset;
+      }
+    }
     if (layer == null) {
       layer = FollowerLayer(
         link: link,

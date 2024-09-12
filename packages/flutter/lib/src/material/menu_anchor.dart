@@ -329,6 +329,7 @@ class _MenuAnchorState extends State<MenuAnchor> {
   bool get _isOpen => _overlayController.isShowing;
   bool get _isRoot => _parent == null;
   MenuController get _menuController => widget.controller ?? _internalMenuController!;
+  final GlobalKey _menuPanelKey = GlobalKey();
 
   @override
   void initState() {
@@ -3604,14 +3605,18 @@ class _Submenu extends StatelessWidget {
     final BuildContext anchorContext = anchor._anchorKey.currentContext!;
     final RenderBox overlay = Overlay.of(anchorContext).context.findRenderObject()! as RenderBox;
 
-    Offset upperLeft = Offset.zero;
-    Offset bottomRight = Offset.zero;
+    Rect anchorRect = Rect.zero;
+
+    final RenderBox anchorBox = anchorContext.findRenderObject()! as RenderBox;
+    final Offset upperLeft = anchorBox.localToGlobal(Offset(dx, -dy), ancestor: overlay);
+    final Offset bottomRight = anchorBox.localToGlobal(anchorBox.paintBounds.bottomRight, ancestor: overlay);
+
     if (layerLink == null) {
-      final RenderBox anchorBox = anchorContext.findRenderObject()! as RenderBox;
-      upperLeft = anchorBox.localToGlobal(Offset(dx, -dy), ancestor: overlay);
-      bottomRight = anchorBox.localToGlobal(anchorBox.paintBounds.bottomRight, ancestor: overlay);
+      anchorRect = Rect.fromPoints(upperLeft, bottomRight);
+    } else {
+      print('&&&& anchorBox.localToGlobal(Offset(dx, -dy), ancestor: overlay) = ${anchorBox.localToGlobal(Offset(dx, -dy), ancestor: overlay)}');
+      layerLink!.globalOffset = anchorBox.localToGlobal(Offset(dx, -dy), ancestor: overlay);
     }
-    final Rect anchorRect = Rect.fromPoints(upperLeft, bottomRight);
 
     Widget child = Theme(
       data: Theme.of(context).copyWith(
@@ -3648,6 +3653,7 @@ class _Submenu extends StatelessWidget {
                     DismissIntent: DismissMenuAction(controller: anchor._menuController),
                   },
                   child: Shortcuts(
+                    key: anchor._menuPanelKey,
                     shortcuts: _kMenuTraversalShortcuts,
                     child: _MenuPanel(
                       menuStyle: menuStyle,
@@ -3669,6 +3675,8 @@ class _Submenu extends StatelessWidget {
       child = CompositedTransformFollower(
         link: layerLink!,
         targetAnchor: Alignment.bottomLeft,
+        allowedRect: Offset.zero & MediaQuery.sizeOf(context),
+        contentKey: anchor._menuPanelKey,
         child: child,
       );
     }
