@@ -3672,10 +3672,18 @@ class _Submenu extends StatelessWidget {
     );
 
     if (layerLink != null) {
+      final Rect allowedRect = Offset.zero & MediaQuery.of(anchorContext).removeViewInsets(removeTop: true, removeBottom: true).size;
+      print('>>>> allowedRect = $allowedRect');
+      print('>>>> viewInsets = ${MediaQuery.of(anchorContext).viewInsets}');
+      print('>>>> viewPadding = ${MediaQuery.of(anchorContext).viewPadding}');
+      final Iterable<Rect> avoidBounds = DisplayFeatureSubScreen.avoidBounds(MediaQuery.of(context)).toSet();
+      print('>>>> avoidBounds = $avoidBounds');
+      //final Iterable<Rect> subScreens = DisplayFeatureSubScreen.subScreensInBounds(overlayRect, avoidBounds);
+
       child = CompositedTransformFollower(
         link: layerLink!,
         targetAnchor: Alignment.bottomLeft,
-        allowedRect: Offset.zero & MediaQuery.sizeOf(context),
+        allowedRect: allowedRect,
         contentKey: anchor._menuPanelKey,
         child: child,
       );
