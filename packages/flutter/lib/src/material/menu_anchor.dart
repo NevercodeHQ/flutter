@@ -3641,13 +3641,20 @@ class _Submenu extends StatelessWidget {
     );
 
     if (layerLink != null) {
-      final Rect allowedRect = Offset.zero & MediaQuery.of(anchorContext).removeViewInsets(removeTop: true, removeBottom: true).size;
-      print('>>>> allowedRect = $allowedRect');
-      print('>>>> viewInsets = ${MediaQuery.of(anchorContext).viewInsets}');
-      print('>>>> viewPadding = ${MediaQuery.of(anchorContext).viewPadding}');
-      final Iterable<Rect> avoidBounds = DisplayFeatureSubScreen.avoidBounds(MediaQuery.of(context)).toSet();
-      print('>>>> avoidBounds = $avoidBounds');
+
+      final Size anchorMQSize =  MediaQuery.sizeOf(anchorContext);
+      final EdgeInsets anchorMQViewInsets =  MediaQuery.viewInsetsOf(anchorContext);
+      final EdgeInsets anchorMQViewPadding =  MediaQuery.viewPaddingOf(anchorContext);
+      final EdgeInsets anchorMQPadding =  MediaQuery.paddingOf(anchorContext);
+      print('>>>> anchorMQSize = $anchorMQSize');
+      print('>>>> anchorMQViewInsets = $anchorMQViewInsets');
+      print('>>>> anchorMQViewPadding = $anchorMQViewPadding');
+      print('>>>> anchorMQPadding = $anchorMQPadding');
+      // final Iterable<Rect> avoidBounds = DisplayFeatureSubScreen.avoidBounds(MediaQuery.of(context)).toSet();
+      // print('>>>> avoidBounds = $avoidBounds');
       //final Iterable<Rect> subScreens = DisplayFeatureSubScreen.subScreensInBounds(overlayRect, avoidBounds);
+      final Rect allowedRect = Rect.fromLTWH(0, anchorMQPadding.top, anchorMQSize.width, anchorMQSize.height - anchorMQViewInsets.vertical);
+      print('>>>> allowedRect = $allowedRect');
 
       child = CompositedTransformFollower(
         link: layerLink!,
