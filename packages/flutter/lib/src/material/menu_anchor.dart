@@ -404,7 +404,7 @@ class _MenuAnchorState extends State<MenuAnchor> {
       );
     }
 
-    Widget child = OverlayPortal(
+    Widget child = OverlayPortal.targetsRootOverlay(
       controller: _overlayController,
       overlayChildBuilder: (BuildContext context) {
         return _Submenu(
