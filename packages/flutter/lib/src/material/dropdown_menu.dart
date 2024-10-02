@@ -1121,6 +1121,7 @@ class _RenderDropdownMenuBody extends RenderBox
 
     assert(maxHeight != null);
     maxWidth = math.max(_kMinimumWidth, maxWidth);
+
     return constraints.constrain(Size(width ?? maxWidth, maxHeight!));
   }
 
@@ -1179,21 +1180,21 @@ class _RenderDropdownMenuBody extends RenderBox
   @override
   double computeMinIntrinsicHeight(double width) {
     final RenderBox? child = firstChild;
-    double width = 0;
+    double height = 0;
     if (child != null) {
-      width = math.max(width, child.getMinIntrinsicHeight(width));
+      height = math.max(height, child.getMinIntrinsicHeight(width));
     }
-    return width;
+    return height;
   }
 
   @override
   double computeMaxIntrinsicHeight(double width) {
     final RenderBox? child = firstChild;
-    double width = 0;
+    double height = 0;
     if (child != null) {
-      width = math.max(width, child.getMaxIntrinsicHeight(width));
+      height = math.max(height, child.getMaxIntrinsicHeight(width));
     }
-    return width;
+    return height;
   }
 
   @override
