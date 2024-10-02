@@ -1066,6 +1066,7 @@ class _RenderDropdownMenuBody extends RenderBox
       maxWidth: widthConstraint,
       maxHeight: getMaxIntrinsicHeight(widthConstraint),
     );
+    print('>>>> performLayout - innerConstraints = $innerConstraints');
     while (child != null) {
       if (child == firstChild) {
         child.layout(innerConstraints, parentUsesSize: true);
@@ -1086,7 +1087,9 @@ class _RenderDropdownMenuBody extends RenderBox
 
     assert(maxHeight != null);
     maxWidth = math.max(_kMinimumWidth, maxWidth);
+    print('>>> performLayout - maxHeight = $maxHeight');
     size = constraints.constrain(Size(width ?? maxWidth, maxHeight!));
+    print('>>> performLayout - size = $size');
   }
 
   @override
@@ -1132,6 +1135,7 @@ class _RenderDropdownMenuBody extends RenderBox
     assert(maxHeight != null);
     maxWidth = math.max(_kMinimumWidth, maxWidth);
 
+    print('>>> computeDryLayout - maxHeight = $maxHeight');
     return constraints.constrain(Size(width ?? maxWidth, maxHeight!));
   }
 
@@ -1194,6 +1198,7 @@ class _RenderDropdownMenuBody extends RenderBox
     if (child != null) {
       height = math.max(height, child.getMinIntrinsicHeight(width));
     }
+    print('>>> computeMinIntrinsicHeight - height = $height');
     return height;
   }
 
@@ -1204,6 +1209,7 @@ class _RenderDropdownMenuBody extends RenderBox
     if (child != null) {
       height = math.max(height, child.getMaxIntrinsicHeight(width));
     }
+    print('>>> computeMaxIntrinsicHeight - height = $height');
     return height;
   }
 

@@ -2298,6 +2298,8 @@ class RenderEditable extends RenderBox with RelayoutWhenSystemFontsChangeMixin, 
     final double width = forceLine
       ? constraints.maxWidth
       : constraints.constrainWidth(_textIntrinsics.size.width + _caretMargin);
+    print('//// RenderEditable.computeDryLayout - constraints = $constraints');
+    print('//// RenderEditable.computeDryLayout - height = ${constraints.constrainHeight(_preferredHeight(constraints.maxWidth))}');
     return Size(width, constraints.constrainHeight(_preferredHeight(constraints.maxWidth)));
   }
 
