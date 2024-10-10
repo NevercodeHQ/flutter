@@ -952,6 +952,10 @@ class _DropdownMenuState<T> extends State<DropdownMenu<T>> {
               ..._initialMenu!.map((Widget item) => ExcludeFocus(excluding: !controller.isOpen, child: item)),
               trailingButton,
               leadingButton,
+              if (widget.label != null) DefaultTextStyle(
+                style: effectiveTextStyle!,
+                child: widget.label!,
+              ),
             ],
           ),
         );
@@ -1080,6 +1084,8 @@ class _RenderDropdownMenuBody extends RenderBox
       final _DropdownMenuBodyParentData childParentData = child.parentData! as _DropdownMenuBodyParentData;
       childParentData.offset = Offset.zero;
       maxWidth = math.max(maxWidth, child.size.width);
+      print('>>>>> child.size.width = ${child.size.width}');
+      print('>>>>> maxWidth = $maxWidth');
       maxHeight ??= child.size.height;
       assert(child.parentData == childParentData);
       child = childParentData.nextSibling;
