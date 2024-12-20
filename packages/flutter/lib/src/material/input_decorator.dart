@@ -563,6 +563,7 @@ class _Decoration {
     required this.borderGap,
     required this.alignLabelWithHint,
     required this.isDense,
+    required this.isEmpty,
     required this.visualDensity,
     this.icon,
     this.input,
@@ -586,6 +587,7 @@ class _Decoration {
   final _InputBorderGap borderGap;
   final bool alignLabelWithHint;
   final bool? isDense;
+  final bool? isEmpty;
   final VisualDensity visualDensity;
   final Widget? icon;
   final Widget? input;
@@ -607,28 +609,29 @@ class _Decoration {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is _Decoration &&
-        other.contentPadding == contentPadding &&
-        other.isCollapsed == isCollapsed &&
-        other.floatingLabelHeight == floatingLabelHeight &&
-        other.floatingLabelProgress == floatingLabelProgress &&
-        other.floatingLabelAlignment == floatingLabelAlignment &&
-        other.border == border &&
-        other.borderGap == borderGap &&
-        other.alignLabelWithHint == alignLabelWithHint &&
-        other.isDense == isDense &&
-        other.visualDensity == visualDensity &&
-        other.icon == icon &&
-        other.input == input &&
-        other.label == label &&
-        other.hint == hint &&
-        other.prefix == prefix &&
-        other.suffix == suffix &&
-        other.prefixIcon == prefixIcon &&
-        other.suffixIcon == suffixIcon &&
-        other.helperError == helperError &&
-        other.counter == counter &&
-        other.container == container;
+    return other is _Decoration
+        && other.contentPadding == contentPadding
+        && other.isCollapsed == isCollapsed
+        && other.floatingLabelHeight == floatingLabelHeight
+        && other.floatingLabelProgress == floatingLabelProgress
+        && other.floatingLabelAlignment == floatingLabelAlignment
+        && other.border == border
+        && other.borderGap == borderGap
+        && other.alignLabelWithHint == alignLabelWithHint
+        && other.isDense == isDense
+        && other.isEmpty == isEmpty
+        && other.visualDensity == visualDensity
+        && other.icon == icon
+        && other.input == input
+        && other.label == label
+        && other.hint == hint
+        && other.prefix == prefix
+        && other.suffix == suffix
+        && other.prefixIcon == prefixIcon
+        && other.suffixIcon == suffixIcon
+        && other.helperError == helperError
+        && other.counter == counter
+        && other.container == container;
   }
 
   @override
@@ -641,6 +644,7 @@ class _Decoration {
     borderGap,
     alignLabelWithHint,
     isDense,
+    isEmpty,
     visualDensity,
     icon,
     input,
@@ -651,8 +655,10 @@ class _Decoration {
     prefixIcon,
     suffixIcon,
     helperError,
-    counter,
-    container,
+    Object.hash(
+      counter,
+      container,
+    ),
   );
 }
 
@@ -1154,26 +1160,32 @@ class _RenderDecoration extends RenderBox
 
   @override
   double computeMinIntrinsicWidth(double height) {
-    return _minWidth(icon, height) +
-        (prefixIcon != null ? prefixToInputGap : contentPadding.start) +
-        _minWidth(prefixIcon, height) +
-        _minWidth(prefix, height) +
-        math.max(_minWidth(input, height), _minWidth(hint, height)) +
-        _minWidth(suffix, height) +
-        _minWidth(suffixIcon, height) +
-        (suffixIcon != null ? inputToSuffixGap : contentPadding.end);
+    final double contentWidth = decoration.isEmpty ?? false
+      ? math.max(_minWidth(input, height), _minWidth(hint, height))
+      : _minWidth(input, height);
+    return _minWidth(icon, height)
+      + (prefixIcon != null ? prefixToInputGap : contentPadding.start)
+      + _minWidth(prefixIcon, height)
+      + _minWidth(prefix, height)
+      + contentWidth
+      + _minWidth(suffix, height)
+      + _minWidth(suffixIcon, height)
+      + (suffixIcon != null ? inputToSuffixGap : contentPadding.end);
   }
 
   @override
   double computeMaxIntrinsicWidth(double height) {
-    return _maxWidth(icon, height) +
-        (prefixIcon != null ? prefixToInputGap : contentPadding.start) +
-        _maxWidth(prefixIcon, height) +
-        _maxWidth(prefix, height) +
-        math.max(_maxWidth(input, height), _maxWidth(hint, height)) +
-        _maxWidth(suffix, height) +
-        _maxWidth(suffixIcon, height) +
-        (suffixIcon != null ? inputToSuffixGap : contentPadding.end);
+    final double contentWidth = decoration.isEmpty ?? false
+      ? math.max(_maxWidth(input, height), _maxWidth(hint, height))
+      : _maxWidth(input, height);
+    return _maxWidth(icon, height)
+      + (prefixIcon != null ? prefixToInputGap : contentPadding.start)
+      + _maxWidth(prefixIcon, height)
+      + _maxWidth(prefix, height)
+      + contentWidth
+      + _maxWidth(suffix, height)
+      + _maxWidth(suffixIcon, height)
+      + (suffixIcon != null ? inputToSuffixGap : contentPadding.end);
   }
 
   double _lineHeight(double width, List<RenderBox?> boxes) {
@@ -2569,6 +2581,7 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
         borderGap: _borderGap,
         alignLabelWithHint: decoration.alignLabelWithHint ?? false,
         isDense: decoration.isDense,
+        isEmpty: isEmpty,
         visualDensity: themeData.visualDensity,
         icon: icon,
         input: input,
